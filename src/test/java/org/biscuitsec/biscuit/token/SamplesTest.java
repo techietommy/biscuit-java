@@ -1,10 +1,14 @@
 package org.biscuitsec.biscuit.token;
 
 import static org.biscuitsec.biscuit.token.Block.fromBytes;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import biscuit.format.schema.Schema;
-import com.google.gson.*;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import io.vavr.Tuple2;
 import io.vavr.control.Either;
 import io.vavr.control.Option;
@@ -14,7 +18,13 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.security.SecureRandom;
 import java.time.Duration;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.biscuitsec.biscuit.crypto.KeyPair;
@@ -41,7 +51,7 @@ class SamplesTest {
         gson.fromJson(new InputStreamReader(new BufferedInputStream(inputStream)), Sample.class);
     PublicKey publicKey = new PublicKey(Schema.PublicKey.Algorithm.Ed25519, sample.root_public_key);
     KeyPair keyPair = KeyPair.generate(Schema.PublicKey.Algorithm.Ed25519, sample.root_private_key);
-    return sample.testcases.stream().map(t -> process_testcase(t, publicKey, keyPair));
+    return sample.testcases.stream().map(t -> processTestcase(t, publicKey, keyPair));
   }
 
   void compareBlocks(KeyPair root, List<Block> sampleBlocks, Biscuit token) throws Error {
@@ -115,7 +125,8 @@ class SamplesTest {
         generatedSampleBlock.printCode(generatedBlockSymbols),
         tokenBlock.printCode(tokenBlockSymbols));
 
-    /* FIXME: to generate the same sample block, we need the samples to provide the external private key
+    /* FIXME: to generate the same sample block,
+        we need the samples to provide the external private key
     assertEquals(generatedSampleBlock, tokenBlock);
     assertArrayEquals(generatedSampleBlock.to_bytes().get(), tokenBlock.to_bytes().get());
     */
@@ -123,7 +134,7 @@ class SamplesTest {
     return newSampleToken;
   }
 
-  DynamicTest process_testcase(
+  DynamicTest processTestcase(
       final TestCase testCase, final PublicKey publicKey, final KeyPair privateKey) {
     return DynamicTest.dynamicTest(
         testCase.title + ": " + testCase.filename,
@@ -141,8 +152,8 @@ class SamplesTest {
             String validationName = validationEntry.getKey();
             JsonObject validation = validationEntry.getValue().getAsJsonObject();
 
-            JsonObject expected_result = validation.getAsJsonObject("result");
-            String[] authorizer_facts =
+            JsonObject expectedResult = validation.getAsJsonObject("result");
+            String[] authorizerFacts =
                 validation.getAsJsonPrimitive("authorizer_code").getAsString().split(";");
             Either<Throwable, Long> res =
                 Try.of(
@@ -157,29 +168,29 @@ class SamplesTest {
 
                           compareBlocks(privateKey, testCase.token, token);
 
-                          byte[] ser_block_authority = token.authority.toBytes().get();
-                          System.out.println(Arrays.toString(ser_block_authority));
+                          byte[] serBlockAuthority = token.authority.toBytes().get();
+                          System.out.println(Arrays.toString(serBlockAuthority));
                           System.out.println(
                               Arrays.toString(token.serializedBiscuit.getAuthority().getBlock()));
-                          org.biscuitsec.biscuit.token.Block deser_block_authority =
-                              fromBytes(ser_block_authority, token.authority.getExternalKey())
+                          org.biscuitsec.biscuit.token.Block deserBlockAuthority =
+                              fromBytes(serBlockAuthority, token.authority.getExternalKey())
                                   .get();
                           assertEquals(
                               token.authority.print(token.symbols),
-                              deser_block_authority.print(token.symbols));
+                              deserBlockAuthority.print(token.symbols));
                           assert (Arrays.equals(
-                              ser_block_authority,
+                              serBlockAuthority,
                               token.serializedBiscuit.getAuthority().getBlock()));
 
                           for (int i = 0; i < token.blocks.size() - 1; i++) {
                             org.biscuitsec.biscuit.token.Block block = token.blocks.get(i);
-                            SignedBlock signed_block = token.serializedBiscuit.getBlocks().get(i);
-                            byte[] ser_block = block.toBytes().get();
-                            org.biscuitsec.biscuit.token.Block deser_block =
-                                fromBytes(ser_block, block.getExternalKey()).get();
+                            SignedBlock signedBlock = token.serializedBiscuit.getBlocks().get(i);
+                            byte[] serBlock = block.toBytes().get();
+                            org.biscuitsec.biscuit.token.Block deserBlock =
+                                fromBytes(serBlock, block.getExternalKey()).get();
                             assertEquals(
-                                block.print(token.symbols), deser_block.print(token.symbols));
-                            assert (Arrays.equals(ser_block, signed_block.getBlock()));
+                                block.print(token.symbols), deserBlock.print(token.symbols));
+                            assert (Arrays.equals(serBlock, signedBlock.getBlock()));
                           }
 
                           List<RevocationIdentifier> revocationIds = token.revocationIdentifiers();
@@ -196,9 +207,9 @@ class SamplesTest {
 
                           Authorizer authorizer = token.authorizer();
                           System.out.println(token.print());
-                          for (String f : authorizer_facts) {
+                          for (String f : authorizerFacts) {
                             f = f.trim();
-                            if (f.length() > 0) {
+                            if (!f.isEmpty()) {
                               if (f.startsWith("check if") || f.startsWith("check all")) {
                                 authorizer.addCheck(f);
                               } else if (f.startsWith("allow if") || f.startsWith("deny if")) {
@@ -250,25 +261,25 @@ class SamplesTest {
                         })
                     .toEither();
 
-            if (expected_result.has("Ok")) {
+            if (expectedResult.has("Ok")) {
               if (res.isLeft()) {
                 System.out.println(
                     "validation '"
                         + validationName
                         + "' expected result Ok("
-                        + expected_result.getAsJsonPrimitive("Ok").getAsLong()
+                        + expectedResult.getAsJsonPrimitive("Ok").getAsLong()
                         + "), got error");
                 throw res.getLeft();
               } else {
-                assertEquals(expected_result.getAsJsonPrimitive("Ok").getAsLong(), res.get());
+                assertEquals(expectedResult.getAsJsonPrimitive("Ok").getAsLong(), res.get());
               }
             } else {
               if (res.isLeft()) {
                 if (res.getLeft() instanceof Error) {
                   Error e = (Error) res.getLeft();
                   System.out.println("validation '" + validationName + "' got error: " + e);
-                  JsonElement err_json = e.toJson();
-                  assertEquals(expected_result.get("Err"), err_json);
+                  JsonElement errJson = e.toJson();
+                  assertEquals(expectedResult.get("Err"), errJson);
                 } else {
                   throw res.getLeft();
                 }
@@ -277,7 +288,7 @@ class SamplesTest {
                     "validation '"
                         + validationName
                         + "' expected result error("
-                        + expected_result.get("Err")
+                        + expectedResult.get("Err")
                         + "), got success: "
                         + res.get());
               }
@@ -289,7 +300,9 @@ class SamplesTest {
   class Block {
     List<String> symbols;
     String code;
+    @SuppressWarnings("checkstyle:MemberName")
     List<String> public_keys;
+    @SuppressWarnings("checkstyle:MemberName")
     String external_key;
 
     public List<String> getSymbols() {
@@ -386,23 +399,29 @@ class SamplesTest {
   }
 
   class Sample {
+    @SuppressWarnings("checkstyle:MemberName")
     String root_private_key;
 
+    @SuppressWarnings("checkstyle:MethodName")
     public String getRoot_public_key() {
       return root_public_key;
     }
 
+    @SuppressWarnings({"checkstyle:MethodName", "checkstyle:ParameterName"})
     public void setRoot_public_key(String root_public_key) {
       this.root_public_key = root_public_key;
     }
 
+    @SuppressWarnings("checkstyle:MemberName")
     String root_public_key;
     List<TestCase> testcases;
 
+    @SuppressWarnings("checkstyle:MethodName")
     public String getRoot_private_key() {
       return root_private_key;
     }
 
+    @SuppressWarnings({"checkstyle:MethodName", "checkstyle:ParameterName"})
     public void setRoot_private_key(String root_private_key) {
       this.root_private_key = root_private_key;
     }
@@ -556,7 +575,9 @@ class SamplesTest {
 
       FactSet factSet = (FactSet) o;
 
-      if (!Objects.equals(origin, factSet.origin)) return false;
+      if (!Objects.equals(origin, factSet.origin)) {
+        return false;
+      }
       return Objects.equals(facts, factSet.facts);
     }
 
@@ -612,7 +633,9 @@ class SamplesTest {
 
       RuleSet ruleSet = (RuleSet) o;
 
-      if (!Objects.equals(origin, ruleSet.origin)) return false;
+      if (!Objects.equals(origin, ruleSet.origin)) {
+        return false;
+      }
       return Objects.equals(rules, ruleSet.rules);
     }
 
@@ -673,7 +696,9 @@ class SamplesTest {
 
       CheckSet checkSet = (CheckSet) o;
 
-      if (!Objects.equals(origin, checkSet.origin)) return false;
+      if (!Objects.equals(origin, checkSet.origin)) {
+        return false;
+      }
       return Objects.equals(checks, checkSet.checks);
     }
 

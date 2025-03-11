@@ -145,7 +145,8 @@ public class UnverifiedBiscuitTest {
                       new FailedCheck.FailedBlock(
                           1,
                           0,
-                          "check if resource($resource), operation(\"read\"), right($resource, \"read\")"),
+                          "check if resource($resource), "
+                              + "operation(\"read\"), right($resource, \"read\")"),
                       new FailedCheck.FailedBlock(2, 0, "check if resource(\"file1\")")))),
           e);
     }

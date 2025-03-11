@@ -1,21 +1,34 @@
 package org.biscuitsec.biscuit.builder.parser;
 
 import static org.biscuitsec.biscuit.datalog.Check.Kind.One;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import biscuit.format.schema.Schema;
 import io.vavr.Tuple2;
 import io.vavr.control.Either;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import org.biscuitsec.biscuit.crypto.PublicKey;
 import org.biscuitsec.biscuit.datalog.SymbolTable;
 import org.biscuitsec.biscuit.datalog.TemporarySymbolTable;
 import org.biscuitsec.biscuit.datalog.expressions.Op;
 import org.biscuitsec.biscuit.token.Biscuit;
-import org.biscuitsec.biscuit.token.builder.*;
+import org.biscuitsec.biscuit.token.builder.Block;
+import org.biscuitsec.biscuit.token.builder.Check;
+import org.biscuitsec.biscuit.token.builder.Expression;
+import org.biscuitsec.biscuit.token.builder.Fact;
+import org.biscuitsec.biscuit.token.builder.Predicate;
+import org.biscuitsec.biscuit.token.builder.Rule;
+import org.biscuitsec.biscuit.token.builder.Scope;
+import org.biscuitsec.biscuit.token.builder.Term;
+import org.biscuitsec.biscuit.token.builder.Utils;
 import org.biscuitsec.biscuit.token.builder.parser.Error;
 import org.biscuitsec.biscuit.token.builder.parser.Parser;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class ParserTest {
@@ -75,7 +88,8 @@ class ParserTest {
     assertEquals(
         Either.right(
             new Tuple2<>(
-                "", Utils.fact("n1:right", Arrays.asList(Utils.string("file1"), Utils.str("read"))))),
+                "",
+                Utils.fact("n1:right", Arrays.asList(Utils.string("file1"), Utils.str("read"))))),
         res4);
   }
 
@@ -227,7 +241,8 @@ class ParserTest {
         Either.left(
             new Error(
                 " resource($0), operation(\"read\"), $test",
-                "rule head or expressions contains variables that are not used in predicates of the rule's body: [test]")),
+                "rule head or expressions contains variables that are not used in predicates of the"
+                    + " rule's body: [test]")),
         res);
   }
 
@@ -235,22 +250,21 @@ class ParserTest {
   void testRuleWithScope() {
     Either<Error, Tuple2<String, Rule>> res =
         Parser.rule(
-            "valid_date(\"file1\") <- resource(\"file1\")  trusting ed25519/6e9e6d5a75cf0c0e87ec1256b4dfed0ca3ba452912d213fcc70f8516583db9db, authority ");
-    assertEquals(
-        Either.right(
-            new Tuple2<>(
-                "",
-                new Rule(
-                    new Predicate("valid_date", List.of(Utils.string("file1"))),
-                    Arrays.asList(Utils.pred("resource", List.of(Utils.string("file1")))),
-                    new ArrayList<>(),
-                    Arrays.asList(
-                        Scope.publicKey(
-                            new PublicKey(
-                                Schema.PublicKey.Algorithm.Ed25519,
-                                "6e9e6d5a75cf0c0e87ec1256b4dfed0ca3ba452912d213fcc70f8516583db9db")),
-                        Scope.authority())))),
-        res);
+            "valid_date(\"file1\") <- resource(\"file1\")  trusting"
+                + " ed25519/6e9e6d5a75cf0c0e87ec1256b4dfed0ca3ba452912d213fcc70f8516583db9db,"
+                + " authority ");
+    Rule refRule =
+        new Rule(
+            new Predicate("valid_date", List.of(Utils.string("file1"))),
+            List.of(Utils.pred("resource", List.of(Utils.string("file1")))),
+            new ArrayList<>(),
+            Arrays.asList(
+                Scope.publicKey(
+                    new PublicKey(
+                        Schema.PublicKey.Algorithm.Ed25519,
+                        "6e9e6d5a75cf0c0e87ec1256b4dfed0ca3ba452912d213fcc70f8516583db9db")),
+                Scope.authority()));
+    assertEquals(Either.right(new Tuple2<>("", refRule)), res);
   }
 
   @Test
@@ -313,7 +327,7 @@ class ParserTest {
 
     SymbolTable s3 = new SymbolTable();
     long test = s3.insert("test");
-    Assertions.assertEquals(
+    assertEquals(
         Arrays.asList(
             new Op.Value(new org.biscuitsec.biscuit.datalog.Term.Integer(1)),
             new Op.Value(new org.biscuitsec.biscuit.datalog.Term.Variable(test)),

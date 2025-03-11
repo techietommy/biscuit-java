@@ -4,7 +4,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.stream.Collectors;
 import org.biscuitsec.biscuit.datalog.expressions.Expression;
 import org.biscuitsec.biscuit.datalog.expressions.Op;
@@ -51,12 +54,12 @@ public class WorldTest {
             new ArrayList<>());
 
     System.out.println("testing r1: " + syms.formatRule(r1));
-    FactSet query_rule_result = w.queryRule(r1, (long) 0, new TrustedOrigins(0), syms);
+    FactSet queryRuleResult = w.queryRule(r1, (long) 0, new TrustedOrigins(0), syms);
     System.out.println(
         "grandparents query_rules: ["
             + String.join(
                 ", ",
-                query_rule_result.stream()
+                queryRuleResult.stream()
                     .map((f) -> syms.formatFact(f))
                     .collect(Collectors.toList()))
             + "]");
@@ -593,7 +596,7 @@ public class WorldTest {
                                 new Term.Set(
                                     new HashSet<>(
                                         Arrays.asList(
-                                            new Term.Integer(0l), new Term.Integer(1l))))),
+                                            new Term.Integer(0L), new Term.Integer(1L))))),
                             new Op.Value(new Term.Variable(syms.insert("int"))),
                             new Op.Binary(Op.BinaryOp.Contains))))));
     System.out.println("testing r1: " + syms.formatRule(r1));
@@ -610,8 +613,8 @@ public class WorldTest {
                     new Fact(new Predicate(int_set, Arrays.asList(abc, syms.add("test")))))));
     assertEquals(expected, res);
 
-    final long abc_sym_id = syms.insert("abc");
-    final long ghi_sym_id = syms.insert("ghi");
+    final long abcSymId = syms.insert("abc");
+    final long ghiSymId = syms.insert("ghi");
 
     final Rule r2 =
         new Rule(
@@ -636,7 +639,7 @@ public class WorldTest {
                                 new Term.Set(
                                     new HashSet<>(
                                         Arrays.asList(
-                                            new Term.Str(abc_sym_id), new Term.Str(ghi_sym_id))))),
+                                            new Term.Str(abcSymId), new Term.Str(ghiSymId))))),
                             new Op.Value(new Term.Variable(syms.insert("sym"))),
                             new Op.Binary(Op.BinaryOp.Contains),
                             new Op.Unary(Op.UnaryOp.Negate))))));

@@ -64,7 +64,7 @@ public class KmsSignerExampleTest {
     var getPublicKeyResponse = kmsClient.getPublicKey(b -> b.keyId(kmsKeyId).build());
     var x509EncodedPublicKey = getPublicKeyResponse.publicKey().asByteArray();
     var sec1CompressedEncodedPublicKey =
-        convertDEREncodedX509PublicKeyToSEC1CompressedEncodedPublicKey(x509EncodedPublicKey);
+        convertDerEncodedX509PublicKeyToSec1CompressedEncodedPublicKey(x509EncodedPublicKey);
     var publicKey = new PublicKey(Algorithm.SECP256R1, sec1CompressedEncodedPublicKey);
     var signer =
         new Signer() {
@@ -96,7 +96,7 @@ public class KmsSignerExampleTest {
     System.out.println(verifiedBiscuit.print());
   }
 
-  private static byte[] convertDEREncodedX509PublicKeyToSEC1CompressedEncodedPublicKey(
+  private static byte[] convertDerEncodedX509PublicKeyToSec1CompressedEncodedPublicKey(
       byte[] publicKeyBytes) {
     try (ASN1InputStream asn1InputStream =
         new ASN1InputStream(new ByteArrayInputStream(publicKeyBytes))) {

@@ -32,16 +32,16 @@ public class ThirdPartyTest {
 
     System.out.println("preparing the authority block");
 
-    KeyPair root = KeyPair.generate(Schema.PublicKey.Algorithm.Ed25519, rng);
-    KeyPair external = KeyPair.generate(Schema.PublicKey.Algorithm.Ed25519, rng);
+    final KeyPair root = KeyPair.generate(Schema.PublicKey.Algorithm.Ed25519, rng);
+    final KeyPair external = KeyPair.generate(Schema.PublicKey.Algorithm.Ed25519, rng);
     System.out.println("external: ed25519/" + external.getPublicKey().toHex());
 
-    Block authority_builder = new Block();
-    authority_builder.addFact("right(\"read\")");
-    authority_builder.addCheck(
+    Block authorityBuilder = new Block();
+    authorityBuilder.addFact("right(\"read\")");
+    authorityBuilder.addCheck(
         "check if group(\"admin\") trusting ed25519/" + external.getPublicKey().toHex());
 
-    Biscuit b1 = Biscuit.make(rng, root, authority_builder.build());
+    Biscuit b1 = Biscuit.make(rng, root, authorityBuilder.build());
     ThirdPartyBlockRequest request = b1.thirdPartyRequest();
     byte[] reqb = request.toBytes();
     ThirdPartyBlockRequest reqdeser = ThirdPartyBlockRequest.fromBytes(reqb);
@@ -101,20 +101,20 @@ public class ThirdPartyTest {
 
     System.out.println("preparing the authority block");
 
-    KeyPair root = KeyPair.generate(Schema.PublicKey.Algorithm.Ed25519, rng);
-    KeyPair external1 = KeyPair.generate(Schema.PublicKey.Algorithm.Ed25519, rng);
-    KeyPair external2 = KeyPair.generate(Schema.PublicKey.Algorithm.Ed25519, rng);
-    KeyPair external3 = KeyPair.generate(Schema.PublicKey.Algorithm.Ed25519, rng);
+    final KeyPair root = KeyPair.generate(Schema.PublicKey.Algorithm.Ed25519, rng);
+    final KeyPair external1 = KeyPair.generate(Schema.PublicKey.Algorithm.Ed25519, rng);
+    final KeyPair external2 = KeyPair.generate(Schema.PublicKey.Algorithm.Ed25519, rng);
+    final KeyPair external3 = KeyPair.generate(Schema.PublicKey.Algorithm.Ed25519, rng);
     // System.out.println("external: ed25519/" + external.public_key().toHex());
 
-    Block authority_builder = new Block();
-    authority_builder.addFact("right(\"read\")");
-    authority_builder.addCheck(
+    Block authorityBuilder = new Block();
+    authorityBuilder.addFact("right(\"read\")");
+    authorityBuilder.addCheck(
         "check if first(\"admin\") trusting ed25519/" + external1.getPublicKey().toHex());
 
-    org.biscuitsec.biscuit.token.Block authority_block = authority_builder.build();
-    System.out.println(authority_block);
-    Biscuit b1 = Biscuit.make(rng, root, authority_block);
+    org.biscuitsec.biscuit.token.Block authorityBlock = authorityBuilder.build();
+    System.out.println(authorityBlock);
+    Biscuit b1 = Biscuit.make(rng, root, authorityBlock);
     System.out.println("TOKEN: " + b1.print());
 
     ThirdPartyBlockRequest request1 = b1.thirdPartyRequest();
@@ -194,16 +194,16 @@ public class ThirdPartyTest {
 
     System.out.println("preparing the authority block");
 
-    KeyPair root = KeyPair.generate(Schema.PublicKey.Algorithm.Ed25519, rng);
-    KeyPair external = KeyPair.generate(Schema.PublicKey.Algorithm.Ed25519, rng);
+    final KeyPair root = KeyPair.generate(Schema.PublicKey.Algorithm.Ed25519, rng);
+    final KeyPair external = KeyPair.generate(Schema.PublicKey.Algorithm.Ed25519, rng);
     System.out.println("external: ed25519/" + external.getPublicKey().toHex());
 
-    Block authority_builder = new Block();
-    authority_builder.addFact("right(\"read\")");
-    authority_builder.addCheck(
+    Block authorityBuilder = new Block();
+    authorityBuilder.addFact("right(\"read\")");
+    authorityBuilder.addCheck(
         "check if group(\"admin\") trusting ed25519/" + external.getPublicKey().toHex());
 
-    Biscuit b1 = Biscuit.make(rng, root, authority_builder.build());
+    Biscuit b1 = Biscuit.make(rng, root, authorityBuilder.build());
     ThirdPartyBlockRequest request = b1.thirdPartyRequest();
     Block builder = new Block();
     builder.addFact("group(\"admin\")");

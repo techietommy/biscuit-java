@@ -1,8 +1,17 @@
 package org.biscuitsec.biscuit.token;
 
 import static org.biscuitsec.biscuit.crypto.TokenSignature.hex;
-import static org.biscuitsec.biscuit.token.builder.Utils.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.biscuitsec.biscuit.token.builder.Utils.check;
+import static org.biscuitsec.biscuit.token.builder.Utils.date;
+import static org.biscuitsec.biscuit.token.builder.Utils.fact;
+import static org.biscuitsec.biscuit.token.builder.Utils.pred;
+import static org.biscuitsec.biscuit.token.builder.Utils.rule;
+import static org.biscuitsec.biscuit.token.builder.Utils.str;
+import static org.biscuitsec.biscuit.token.builder.Utils.var;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import biscuit.format.schema.Schema;
 import io.vavr.control.Option;
@@ -13,7 +22,8 @@ import java.security.SecureRandom;
 import java.security.SignatureException;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Date;
 import org.biscuitsec.biscuit.crypto.KeyDelegate;
 import org.biscuitsec.biscuit.crypto.KeyPair;
 import org.biscuitsec.biscuit.crypto.PublicKey;
@@ -37,13 +47,13 @@ public class BiscuitTest {
 
     KeyPair root = KeyPair.generate(Schema.PublicKey.Algorithm.Ed25519, rng);
 
-    Block authority_builder = new Block();
+    Block authorityBuilder = new Block();
 
-    authority_builder.addFact(fact("right", Arrays.asList(str("file1"), str("read"))));
-    authority_builder.addFact(fact("right", Arrays.asList(str("file2"), str("read"))));
-    authority_builder.addFact(fact("right", Arrays.asList(str("file1"), str("write"))));
+    authorityBuilder.addFact(fact("right", Arrays.asList(str("file1"), str("read"))));
+    authorityBuilder.addFact(fact("right", Arrays.asList(str("file2"), str("read"))));
+    authorityBuilder.addFact(fact("right", Arrays.asList(str("file1"), str("write"))));
 
-    Biscuit b = Biscuit.make(rng, root, authority_builder.build());
+    Biscuit b = Biscuit.make(rng, root, authorityBuilder.build());
 
     System.out.println(b.print());
 
@@ -119,14 +129,14 @@ public class BiscuitTest {
     System.out.println(hex(data3));
 
     System.out.println("deserializing the third token");
-    Biscuit final_token = Biscuit.fromBytes(data3, root.getPublicKey());
+    Biscuit finalToken = Biscuit.fromBytes(data3, root.getPublicKey());
 
-    System.out.println(final_token.print());
+    System.out.println(finalToken.print());
 
     // check
     System.out.println("will check the token for resource=file1 and operation=read");
 
-    Authorizer authorizer = final_token.authorizer();
+    Authorizer authorizer = finalToken.authorizer();
     authorizer.addFact("resource(\"file1\")");
     authorizer.addFact("operation(\"read\")");
     authorizer.addPolicy("allow if true");
@@ -134,7 +144,7 @@ public class BiscuitTest {
 
     System.out.println("will check the token for resource=file2 and operation=write");
 
-    Authorizer authorizer2 = final_token.authorizer();
+    Authorizer authorizer2 = finalToken.authorizer();
     authorizer2.addFact("resource(\"file2\")");
     authorizer2.addFact("operation(\"write\")");
     authorizer2.addPolicy("allow if true");
@@ -151,7 +161,8 @@ public class BiscuitTest {
                       new FailedCheck.FailedBlock(
                           1,
                           0,
-                          "check if resource($resource), operation(\"read\"), right($resource, \"read\")"),
+                          "check if resource($resource), operation(\"read\"), right($resource,"
+                              + " \"read\")"),
                       new FailedCheck.FailedBlock(2, 0, "check if resource(\"file1\")")))),
           e);
     }
@@ -227,7 +238,8 @@ public class BiscuitTest {
                       new FailedCheck.FailedBlock(
                           1,
                           1,
-                          "check if resource($resource), operation(\"read\"), right($resource, \"read\")")))),
+                          "check if resource($resource), operation(\"read\"), right($resource,"
+                              + " \"read\")")))),
           e);
     }
   }
@@ -238,17 +250,18 @@ public class BiscuitTest {
     SecureRandom rng = new SecureRandom();
     KeyPair root = KeyPair.generate(Schema.PublicKey.Algorithm.Ed25519, rng);
 
-    Block authority_builder = new Block();
+    Block authorityBuilder = new Block();
     Date date = Date.from(Instant.now());
-    authority_builder.addFact(fact("revocation_id", Arrays.asList(date(date))));
+    authorityBuilder.addFact(fact("revocation_id", Arrays.asList(date(date))));
 
-    Biscuit biscuit = Biscuit.make(rng, root, authority_builder.build());
+    Biscuit biscuit = Biscuit.make(rng, root, authorityBuilder.build());
 
     Block builder = biscuit.createBlock();
     builder.addFact(
         fact(
             "right",
-            Arrays.asList(str("topic"), str("tenant"), str("namespace"), str("topic"), str("produce"))));
+            Arrays.asList(
+                str("topic"), str("tenant"), str("namespace"), str("topic"), str("produce"))));
 
     String attenuatedB64 =
         biscuit
@@ -337,7 +350,8 @@ public class BiscuitTest {
                     new FailedCheck.FailedBlock(
                         1,
                         1,
-                        "check if resource($resource), operation(\"read\"), right($resource, \"read\")")))),
+                        "check if resource($resource), operation(\"read\"), right($resource,"
+                            + " \"read\")")))),
         e);
   }
 
@@ -393,12 +407,12 @@ public class BiscuitTest {
 
     KeyPair root = KeyPair.generate(Schema.PublicKey.Algorithm.Ed25519, rng);
 
-    Block authority_builder = new Block();
+    Block authorityBuilder = new Block();
 
-    authority_builder.addFact(fact("namespace:right", Arrays.asList(str("file1"), str("read"))));
-    authority_builder.addFact(fact("namespace:right", Arrays.asList(str("file1"), str("write"))));
-    authority_builder.addFact(fact("namespace:right", Arrays.asList(str("file2"), str("read"))));
-    Biscuit b = Biscuit.make(rng, root, authority_builder.build());
+    authorityBuilder.addFact(fact("namespace:right", Arrays.asList(str("file1"), str("read"))));
+    authorityBuilder.addFact(fact("namespace:right", Arrays.asList(str("file1"), str("write"))));
+    authorityBuilder.addFact(fact("namespace:right", Arrays.asList(str("file2"), str("read"))));
+    Biscuit b = Biscuit.make(rng, root, authorityBuilder.build());
 
     System.out.println(b.print());
 
@@ -474,14 +488,14 @@ public class BiscuitTest {
     System.out.println(hex(data3));
 
     System.out.println("deserializing the third token");
-    Biscuit final_token = Biscuit.fromBytes(data3, root.getPublicKey());
+    Biscuit finalToken = Biscuit.fromBytes(data3, root.getPublicKey());
 
-    System.out.println(final_token.print());
+    System.out.println(finalToken.print());
 
     // check
     System.out.println("will check the token for resource=file1 and operation=read");
 
-    Authorizer authorizer = final_token.authorizer();
+    Authorizer authorizer = finalToken.authorizer();
     authorizer.addFact("resource(\"file1\")");
     authorizer.addFact("operation(\"read\")");
     authorizer.addPolicy("allow if true");
@@ -489,7 +503,7 @@ public class BiscuitTest {
 
     System.out.println("will check the token for resource=file2 and operation=write");
 
-    Authorizer authorizer2 = final_token.authorizer();
+    Authorizer authorizer2 = finalToken.authorizer();
     authorizer2.addFact("resource(\"file2\")");
     authorizer2.addFact("operation(\"write\")");
     authorizer2.addPolicy("allow if true");
@@ -506,7 +520,8 @@ public class BiscuitTest {
                       new FailedCheck.FailedBlock(
                           1,
                           0,
-                          "check if resource($resource), operation(\"read\"), namespace:right($resource, \"read\")"),
+                          "check if resource($resource), operation(\"read\"),"
+                              + " namespace:right($resource, \"read\")"),
                       new FailedCheck.FailedBlock(2, 0, "check if resource(\"file1\")")))),
           e);
     }
@@ -604,14 +619,14 @@ public class BiscuitTest {
     System.out.println(hex(data3));
 
     System.out.println("deserializing the third token");
-    Biscuit final_token = Biscuit.fromBytes(data3, root.getPublicKey());
+    Biscuit finalToken = Biscuit.fromBytes(data3, root.getPublicKey());
 
-    System.out.println(final_token.print());
+    System.out.println(finalToken.print());
 
     // check
     System.out.println("will check the token for resource=file1 and operation=read");
 
-    Authorizer authorizer = final_token.authorizer();
+    Authorizer authorizer = finalToken.authorizer();
     authorizer.addFact("resource(\"file1\")");
     authorizer.addFact("operation(\"read\")");
     authorizer.addPolicy("allow if true");
@@ -619,7 +634,7 @@ public class BiscuitTest {
 
     System.out.println("will check the token for resource=file2 and operation=write");
 
-    Authorizer authorizer2 = final_token.authorizer();
+    Authorizer authorizer2 = finalToken.authorizer();
     authorizer2.addFact("resource(\"file2\")");
     authorizer2.addFact("operation(\"write\")");
     authorizer2.addPolicy("allow if true");
@@ -635,7 +650,8 @@ public class BiscuitTest {
                       new FailedCheck.FailedBlock(
                           1,
                           0,
-                          "check if resource($resource), operation(\"read\"), namespace:right($resource, \"read\")"),
+                          "check if resource($resource), operation(\"read\"),"
+                              + " namespace:right($resource, \"read\")"),
                       new FailedCheck.FailedBlock(2, 0, "check if resource(\"file1\")")))),
           e);
     }
@@ -651,13 +667,13 @@ public class BiscuitTest {
 
     KeyPair root = KeyPair.generate(Schema.PublicKey.Algorithm.Ed25519, rng);
 
-    Block authority_builder = new Block();
+    Block authorityBuilder = new Block();
 
-    authority_builder.addFact(fact("right", Arrays.asList(str("file1"), str("read"))));
-    authority_builder.addFact(fact("right", Arrays.asList(str("file2"), str("read"))));
-    authority_builder.addFact(fact("right", Arrays.asList(str("file1"), str("write"))));
+    authorityBuilder.addFact(fact("right", Arrays.asList(str("file1"), str("read"))));
+    authorityBuilder.addFact(fact("right", Arrays.asList(str("file2"), str("read"))));
+    authorityBuilder.addFact(fact("right", Arrays.asList(str("file1"), str("write"))));
 
-    Biscuit b = Biscuit.make(rng, root, 1, authority_builder.build());
+    Biscuit b = Biscuit.make(rng, root, 1, authorityBuilder.build());
 
     System.out.println(b.print());
 
@@ -749,7 +765,8 @@ public class BiscuitTest {
                       new FailedCheck.FailedBlock(
                           0,
                           0,
-                          "check all operation($op), allowed_operations($allowed), $allowed.contains($op)")))),
+                          "check all operation($op), allowed_operations($allowed),"
+                              + " $allowed.contains($op)")))),
           e);
     }
 

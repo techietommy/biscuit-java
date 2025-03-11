@@ -40,7 +40,4 @@ public class ExampleTest {
     return token.attenuate(block, root.getPublicKey().getAlgorithm());
   }
 
-  /*public Set<Fact> query(Authorizer authorizer) throws Error.Timeout, Error.TooManyFacts, Error.TooManyIterations, Error.Parser {
-      return authorizer.query("data($name, $id) <- user($name, $id)");
-  }*/
 }

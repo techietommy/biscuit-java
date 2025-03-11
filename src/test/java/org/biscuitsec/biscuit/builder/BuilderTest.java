@@ -1,6 +1,9 @@
 package org.biscuitsec.biscuit.builder;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import biscuit.format.schema.Schema;
 import java.nio.charset.StandardCharsets;
@@ -28,11 +31,11 @@ public class BuilderTest {
     KeyPair root = KeyPair.generate(Schema.PublicKey.Algorithm.Ed25519, rng);
     SymbolTable symbols = Biscuit.defaultSymbolTable();
 
-    Block authority_builder = new Block();
-    authority_builder.addFact(
+    Block authorityBuilder = new Block();
+    authorityBuilder.addFact(
         Utils.fact("revocation_id", Arrays.asList(Utils.date(Date.from(Instant.now())))));
-    authority_builder.addFact(Utils.fact("right", Arrays.asList(Utils.str("admin"))));
-    authority_builder.addRule(
+    authorityBuilder.addFact(Utils.fact("right", Arrays.asList(Utils.str("admin"))));
+    authorityBuilder.addRule(
         Utils.constrainedRule(
             "right",
             Arrays.asList(
@@ -59,7 +62,7 @@ public class BuilderTest {
                                     Utils.str("create_topic"),
                                     Utils.str("get_topic"),
                                     Utils.str("get_topics")))))))));
-    authority_builder.addRule(
+    authorityBuilder.addRule(
         Utils.constrainedRule(
             "right",
             Arrays.asList(
@@ -84,7 +87,7 @@ public class BuilderTest {
                     new Expression.Value(
                         new Term.Set(new HashSet<>(Arrays.asList(Utils.str("lookup")))))))));
 
-    org.biscuitsec.biscuit.token.Block authority = authority_builder.build(symbols);
+    org.biscuitsec.biscuit.token.Block authority = authorityBuilder.build(symbols);
     Biscuit rootBiscuit = Biscuit.make(rng, root, authority);
 
     System.out.println(rootBiscuit.print());
@@ -93,22 +96,22 @@ public class BuilderTest {
   }
 
   @Test
-  public void testStringValueOfAStringTerm() {
+  public void testStringValueOfStringTerm() {
     assertEquals("\"hello\"", new Term.Str("hello").toString());
   }
 
   @Test
-  public void testStringValueOfAnIntegerTerm() {
+  public void testStringValueOfIntegerTerm() {
     assertEquals("123", new Term.Integer(123).toString());
   }
 
   @Test
-  public void testStringValueOfAVariableTerm() {
+  public void testStringValueOfVariableTerm() {
     assertEquals("$hello", new Term.Variable("hello").toString());
   }
 
   @Test
-  public void testStringValueOfASetTerm() {
+  public void testStringValueOfSetTerm() {
     String actual =
         new Term.Set(Set.of(new Term.Str("a"), new Term.Str("b"), new Term.Integer((3))))
             .toString();
@@ -120,7 +123,7 @@ public class BuilderTest {
   }
 
   @Test
-  public void testStringValueOfAByteArrayTermIsJustTheArrayReferenceNotTheContents() {
+  public void testStringValueOfByteArrayTermIsJustTheArrayReferenceNotTheContents() {
     String string = new Term.Bytes("Hello".getBytes(StandardCharsets.UTF_8)).toString();
     assertTrue(string.startsWith("hex:"), "starts with hex prefix");
   }

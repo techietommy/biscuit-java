@@ -41,7 +41,7 @@ public class AuthorizerTest {
   }
 
   @Test
-  public void testPuttingSomeFactsInABiscuitAndGettingThemBackOutAgain() throws Exception {
+  public void testPuttingSomeFactsInBiscuitAndGettingThemBackOutAgain() throws Exception {
 
     KeyPair keypair = KeyPair.generate(Schema.PublicKey.Algorithm.Ed25519, new SecureRandom());
 
