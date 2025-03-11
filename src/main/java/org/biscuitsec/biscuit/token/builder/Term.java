@@ -10,7 +10,7 @@ import java.util.Objects;
 import org.biscuitsec.biscuit.datalog.SymbolTable;
 
 public abstract class Term {
-  public abstract org.biscuitsec.biscuit.datalog.Term convert(SymbolTable symbols);
+  public abstract org.biscuitsec.biscuit.datalog.Term convert(SymbolTable symbolTable);
 
   public static Term convertFrom(org.biscuitsec.biscuit.datalog.Term id, SymbolTable symbols) {
     return id.toTerm(symbols);
@@ -24,8 +24,8 @@ public abstract class Term {
     }
 
     @Override
-    public org.biscuitsec.biscuit.datalog.Term convert(SymbolTable symbols) {
-      return new org.biscuitsec.biscuit.datalog.Term.Str(symbols.insert(this.value));
+    public org.biscuitsec.biscuit.datalog.Term convert(SymbolTable symbolTable) {
+      return new org.biscuitsec.biscuit.datalog.Term.Str(symbolTable.insert(this.value));
     }
 
     public String getValue() {
@@ -63,8 +63,8 @@ public abstract class Term {
     }
 
     @Override
-    public org.biscuitsec.biscuit.datalog.Term convert(SymbolTable symbols) {
-      return new org.biscuitsec.biscuit.datalog.Term.Variable(symbols.insert(this.value));
+    public org.biscuitsec.biscuit.datalog.Term convert(SymbolTable symbolTable) {
+      return new org.biscuitsec.biscuit.datalog.Term.Variable(symbolTable.insert(this.value));
     }
 
     public String getValue() {
@@ -108,7 +108,7 @@ public abstract class Term {
     }
 
     @Override
-    public org.biscuitsec.biscuit.datalog.Term convert(SymbolTable symbols) {
+    public org.biscuitsec.biscuit.datalog.Term convert(SymbolTable symbolTable) {
       return new org.biscuitsec.biscuit.datalog.Term.Integer(this.value);
     }
 
@@ -145,7 +145,7 @@ public abstract class Term {
     }
 
     @Override
-    public org.biscuitsec.biscuit.datalog.Term convert(SymbolTable symbols) {
+    public org.biscuitsec.biscuit.datalog.Term convert(SymbolTable symbolTable) {
       return new org.biscuitsec.biscuit.datalog.Term.Bytes(this.value);
     }
 
@@ -186,7 +186,7 @@ public abstract class Term {
     }
 
     @Override
-    public org.biscuitsec.biscuit.datalog.Term convert(SymbolTable symbols) {
+    public org.biscuitsec.biscuit.datalog.Term convert(SymbolTable symbolTable) {
       return new org.biscuitsec.biscuit.datalog.Term.Date(this.value);
     }
 
@@ -230,7 +230,7 @@ public abstract class Term {
     }
 
     @Override
-    public org.biscuitsec.biscuit.datalog.Term convert(SymbolTable symbols) {
+    public org.biscuitsec.biscuit.datalog.Term convert(SymbolTable symbolTable) {
       return new org.biscuitsec.biscuit.datalog.Term.Bool(this.value);
     }
 
@@ -275,11 +275,11 @@ public abstract class Term {
     }
 
     @Override
-    public org.biscuitsec.biscuit.datalog.Term convert(SymbolTable symbols) {
+    public org.biscuitsec.biscuit.datalog.Term convert(SymbolTable symbolTable) {
       HashSet<org.biscuitsec.biscuit.datalog.Term> s = new HashSet<>();
 
       for (Term t : this.value) {
-        s.add(t.convert(symbols));
+        s.add(t.convert(symbolTable));
       }
 
       return new org.biscuitsec.biscuit.datalog.Term.Set(s);

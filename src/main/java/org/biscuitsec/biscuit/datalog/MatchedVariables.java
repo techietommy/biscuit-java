@@ -64,14 +64,14 @@ public final class MatchedVariables implements Serializable {
     }
   }
 
-  public Option<Map<Long, Term>> checkExpressions(List<Expression> expressions, SymbolTable symbols)
+  public Option<Map<Long, Term>> checkExpressions(List<Expression> expressions, SymbolTable symbolTable)
       throws Error {
     final Option<Map<Long, Term>> vars = this.complete();
     if (vars.isDefined()) {
       Map<Long, Term> variables = vars.get();
 
       for (Expression e : expressions) {
-        Term term = e.evaluate(variables, new TemporarySymbolTable(symbols));
+        Term term = e.evaluate(variables, new TemporarySymbolTable(symbolTable));
 
         if (!(term instanceof Term.Bool)) {
           throw new Error.InvalidType();

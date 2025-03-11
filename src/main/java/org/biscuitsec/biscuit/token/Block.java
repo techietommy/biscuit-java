@@ -27,7 +27,7 @@ import org.biscuitsec.biscuit.token.format.SerializedBiscuit;
 
 /** Represents a token's block with its checks */
 public final class Block {
-  private final SymbolTable symbols;
+  private final SymbolTable symbolTable;
   private final String context;
   private final List<Fact> facts;
   private final List<Rule> rules;
@@ -43,7 +43,7 @@ public final class Block {
    * @param baseSymbols
    */
   public Block(SymbolTable baseSymbols) {
-    this.symbols = baseSymbols;
+    this.symbolTable = baseSymbols;
     this.context = "";
     this.facts = new ArrayList<>();
     this.rules = new ArrayList<>();
@@ -70,7 +70,7 @@ public final class Block {
       List<PublicKey> publicKeys,
       Option<PublicKey> externalKey,
       int version) {
-    this.symbols = baseSymbols;
+    this.symbolTable = baseSymbols;
     this.context = context;
     this.facts = facts;
     this.rules = rules;
@@ -81,7 +81,7 @@ public final class Block {
   }
 
   public SymbolTable symbols() {
-    return symbols;
+    return symbolTable;
   }
 
   public List<PublicKey> publicKeys() {
@@ -103,7 +103,7 @@ public final class Block {
 
     SymbolTable localSymbols;
     if (this.externalKey.isDefined()) {
-      localSymbols = new SymbolTable(this.symbols);
+      localSymbols = new SymbolTable(this.symbolTable);
       for (PublicKey pk : symbolTable.getPublicKeys()) {
         localSymbols.insert(pk);
       }
@@ -114,7 +114,7 @@ public final class Block {
     s.append(" {\n\t\tsymbols: ");
     s.append(this.symbols().symbols());
     s.append("\n\t\tsymbol public keys: ");
-    s.append(this.symbols.getPublicKeys());
+    s.append(this.symbolTable.getPublicKeys());
     s.append("\n\t\tblock public keys: ");
     s.append(this.publicKeys);
     s.append("\n\t\tcontext: ");
@@ -153,7 +153,7 @@ public final class Block {
 
     SymbolTable localSymbols;
     if (this.externalKey.isDefined()) {
-      localSymbols = new SymbolTable(this.symbols);
+      localSymbols = new SymbolTable(this.symbolTable);
       for (PublicKey pk : symbolTable.getPublicKeys()) {
         localSymbols.insert(pk);
       }
@@ -241,7 +241,7 @@ public final class Block {
       }
     }
     for (Check c : this.checks) {
-      containsCheckAll |= c.kind() == Check.Kind.All;
+      containsCheckAll |= c.kind() == Check.Kind.ALL;
 
       for (Rule q : c.queries()) {
         containsScopes |= !q.scopes().isEmpty();
@@ -293,9 +293,9 @@ public final class Block {
               SerializedBiscuit.MIN_SCHEMA_VERSION, SerializedBiscuit.MAX_SCHEMA_VERSION, version));
     }
 
-    SymbolTable symbols = new SymbolTable();
+    SymbolTable newSymbolTable = new SymbolTable();
     for (String s : b.getSymbolsList()) {
-      symbols.add(s);
+      newSymbolTable.add(s);
     }
 
     ArrayList<Fact> facts = new ArrayList<>();
@@ -348,7 +348,7 @@ public final class Block {
       try {
         PublicKey key = PublicKey.deserialize(pk);
         publicKeys.add(key);
-        symbols.getPublicKeys().add(key);
+        newSymbolTable.getPublicKeys().add(key);
       } catch (Error.FormatError e) {
         return Left(e);
       }
@@ -363,7 +363,7 @@ public final class Block {
 
     return Right(
         new Block(
-            symbols,
+            newSymbolTable,
             b.getContext(),
             facts,
             rules,
@@ -413,7 +413,7 @@ public final class Block {
 
     Block block = (Block) o;
 
-    if (!Objects.equals(symbols, block.symbols)) {
+    if (!Objects.equals(symbolTable, block.symbolTable)) {
       return false;
     }
     if (!Objects.equals(context, block.context)) {
@@ -439,7 +439,7 @@ public final class Block {
 
   @Override
   public int hashCode() {
-    int result = symbols != null ? symbols.hashCode() : 0;
+    int result = symbolTable != null ? symbolTable.hashCode() : 0;
     result = 31 * result + (context != null ? context.hashCode() : 0);
     result = 31 * result + (facts != null ? facts.hashCode() : 0);
     result = 31 * result + (rules != null ? rules.hashCode() : 0);
@@ -454,7 +454,7 @@ public final class Block {
   public String toString() {
     return "Block{"
         + "symbols="
-        + symbols
+        + symbolTable
         + ", context='"
         + context
         + '\''

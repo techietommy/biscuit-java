@@ -13,8 +13,8 @@ import org.biscuitsec.biscuit.error.Error;
 
 public final class Check {
   public enum Kind {
-    One,
-    All
+    ONE,
+    ALL
   }
 
   private static final int HASH_CODE_SEED = 31;
@@ -41,7 +41,7 @@ public final class Check {
 
     // do not set the kind to One to keep compatibility with older library versions
     switch (this.kind) {
-      case All:
+      case ALL:
         b.setKind(All);
         break;
       default:
@@ -60,13 +60,13 @@ public final class Check {
     Kind kind;
     switch (check.getKind()) {
       case One:
-        kind = Kind.One;
+        kind = Kind.ONE;
         break;
       case All:
-        kind = Kind.All;
+        kind = Kind.ALL;
         break;
       default:
-        kind = Kind.One;
+        kind = Kind.ONE;
         break;
     }
 

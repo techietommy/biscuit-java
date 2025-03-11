@@ -29,7 +29,7 @@ public class BuilderTest {
   public void testBuild() throws Error.Language, Error.SymbolTableOverlap, Error.FormatError {
     SecureRandom rng = new SecureRandom();
     KeyPair root = KeyPair.generate(Schema.PublicKey.Algorithm.Ed25519, rng);
-    SymbolTable symbols = Biscuit.defaultSymbolTable();
+    SymbolTable symbolTable = Biscuit.defaultSymbolTable();
 
     Block authorityBuilder = new Block();
     authorityBuilder.addFact(
@@ -87,7 +87,7 @@ public class BuilderTest {
                     new Expression.Value(
                         new Term.Set(new HashSet<>(Arrays.asList(Utils.str("lookup")))))))));
 
-    org.biscuitsec.biscuit.token.Block authority = authorityBuilder.build(symbols);
+    org.biscuitsec.biscuit.token.Block authority = authorityBuilder.build(symbolTable);
     Biscuit rootBiscuit = Biscuit.make(rng, root, authority);
 
     System.out.println(rootBiscuit.print());

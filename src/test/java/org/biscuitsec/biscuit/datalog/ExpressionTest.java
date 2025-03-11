@@ -15,10 +15,10 @@ public class ExpressionTest {
 
   @Test
   public void testNegate() throws Error.Execution {
-    SymbolTable symbols = new SymbolTable();
-    symbols.add("a");
-    symbols.add("b");
-    symbols.add("var");
+    SymbolTable symbolTable = new SymbolTable();
+    symbolTable.add("a");
+    symbolTable.add("b");
+    symbolTable.add("var");
 
     Expression e =
         new Expression(
@@ -29,20 +29,20 @@ public class ExpressionTest {
                     new Op.Binary(Op.BinaryOp.LessThan),
                     new Op.Unary(Op.UnaryOp.Negate))));
 
-    assertEquals("!1 < $var", e.print(symbols).get());
+    assertEquals("!1 < $var", e.print(symbolTable).get());
 
     HashMap<Long, Term> variables = new HashMap<>();
     variables.put(SymbolTable.DEFAULT_SYMBOLS_OFFSET + 2L, new Term.Integer(0));
 
-    assertEquals(new Term.Bool(true), e.evaluate(variables, new TemporarySymbolTable(symbols)));
+    assertEquals(new Term.Bool(true), e.evaluate(variables, new TemporarySymbolTable(symbolTable)));
   }
 
   @Test
   public void testAddsStr() throws Error.Execution {
-    SymbolTable symbols = new SymbolTable();
-    symbols.add("a");
-    symbols.add("b");
-    symbols.add("ab");
+    SymbolTable symbolTable = new SymbolTable();
+    symbolTable.add("a");
+    symbolTable.add("b");
+    symbolTable.add("ab");
 
     Expression e =
         new Expression(
@@ -52,18 +52,18 @@ public class ExpressionTest {
                     new Op.Value(new Term.Str(SymbolTable.DEFAULT_SYMBOLS_OFFSET + 1)),
                     new Op.Binary(Op.BinaryOp.Add))));
 
-    assertEquals("\"a\" + \"b\"", e.print(symbols).get());
+    assertEquals("\"a\" + \"b\"", e.print(symbolTable).get());
 
     assertEquals(
         new Term.Str(SymbolTable.DEFAULT_SYMBOLS_OFFSET + 2),
-        e.evaluate(new HashMap<>(), new TemporarySymbolTable(symbols)));
+        e.evaluate(new HashMap<>(), new TemporarySymbolTable(symbolTable)));
   }
 
   @Test
   public void testContainsStr() throws Error.Execution {
-    SymbolTable symbols = new SymbolTable();
-    symbols.add("ab");
-    symbols.add("b");
+    SymbolTable symbolTable = new SymbolTable();
+    symbolTable.add("ab");
+    symbolTable.add("b");
 
     Expression e =
         new Expression(
@@ -73,17 +73,17 @@ public class ExpressionTest {
                     new Op.Value(new Term.Str(SymbolTable.DEFAULT_SYMBOLS_OFFSET + 1)),
                     new Op.Binary(Op.BinaryOp.Contains))));
 
-    assertEquals("\"ab\".contains(\"b\")", e.print(symbols).get());
+    assertEquals("\"ab\".contains(\"b\")", e.print(symbolTable).get());
 
     assertEquals(
-        new Term.Bool(true), e.evaluate(new HashMap<>(), new TemporarySymbolTable(symbols)));
+        new Term.Bool(true), e.evaluate(new HashMap<>(), new TemporarySymbolTable(symbolTable)));
   }
 
   @Test
   public void testNegativeContainsStr() throws Error.Execution {
-    SymbolTable symbols = new SymbolTable();
-    symbols.add("ab");
-    symbols.add("b");
+    SymbolTable symbolTable = new SymbolTable();
+    symbolTable.add("ab");
+    symbolTable.add("b");
 
     Expression e =
         new Expression(
@@ -94,15 +94,15 @@ public class ExpressionTest {
                     new Op.Binary(Op.BinaryOp.Contains),
                     new Op.Unary(Op.UnaryOp.Negate))));
 
-    assertEquals("!\"ab\".contains(\"b\")", e.print(symbols).get());
+    assertEquals("!\"ab\".contains(\"b\")", e.print(symbolTable).get());
 
     assertEquals(
-        new Term.Bool(false), e.evaluate(new HashMap<>(), new TemporarySymbolTable(symbols)));
+        new Term.Bool(false), e.evaluate(new HashMap<>(), new TemporarySymbolTable(symbolTable)));
   }
 
   @Test
   public void testIntersectionAndContains() throws Error.Execution {
-    SymbolTable symbols = new SymbolTable();
+    SymbolTable symbolTable = new SymbolTable();
 
     Expression e =
         new Expression(
@@ -123,9 +123,9 @@ public class ExpressionTest {
                     new Op.Value(new Term.Integer(1)),
                     new Op.Binary(Op.BinaryOp.Contains))));
 
-    assertEquals("[1, 2, 3].intersection([1, 2]).contains(1)", e.print(symbols).get());
+    assertEquals("[1, 2, 3].intersection([1, 2]).contains(1)", e.print(symbolTable).get());
 
     assertEquals(
-        new Term.Bool(true), e.evaluate(new HashMap<>(), new TemporarySymbolTable(symbols)));
+        new Term.Bool(true), e.evaluate(new HashMap<>(), new TemporarySymbolTable(symbolTable)));
   }
 }

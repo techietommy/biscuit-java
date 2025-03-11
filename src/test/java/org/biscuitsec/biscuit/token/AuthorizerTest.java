@@ -33,7 +33,7 @@ public class AuthorizerTest {
                     new ArrayList<>(),
                     new ArrayList<>(),
                     Arrays.asList(new Expression.Value(new Term.Bool(true))))),
-            Policy.Kind.Deny));
+            Policy.Kind.DENY));
     assertEquals(2, policies.size());
 
     authorizer.addPolicy("deny if true");

@@ -188,10 +188,10 @@ public final class Parser {
     org.biscuitsec.biscuit.datalog.Check.Kind kind;
 
     if (s.startsWith("check if")) {
-      kind = org.biscuitsec.biscuit.datalog.Check.Kind.One;
+      kind = org.biscuitsec.biscuit.datalog.Check.Kind.ONE;
       s = s.substring("check if".length());
     } else if (s.startsWith("check all")) {
-      kind = org.biscuitsec.biscuit.datalog.Check.Kind.All;
+      kind = org.biscuitsec.biscuit.datalog.Check.Kind.ALL;
       s = s.substring("check all".length());
     } else {
       return Either.left(new Error(s, "missing check prefix"));
@@ -213,14 +213,14 @@ public final class Parser {
   }
 
   public static Either<Error, Tuple2<String, Policy>> policy(String s) {
-    Policy.Kind p = Policy.Kind.Allow;
+    Policy.Kind p = Policy.Kind.ALLOW;
 
     String allow = "allow if";
     String deny = "deny if";
     if (s.startsWith(allow)) {
       s = s.substring(allow.length());
     } else if (s.startsWith(deny)) {
-      p = Policy.Kind.Deny;
+      p = Policy.Kind.DENY;
       s = s.substring(deny.length());
     } else {
       return Either.left(new Error(s, "missing policy prefix"));

@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class LogicError {
-  public Option<List<FailedCheck>> failedChecks() {
+  public Option<List<FailedCheck>> getFailedChecks() {
     return Option.none();
   }
 
@@ -184,7 +184,7 @@ public class LogicError {
       this.policy = policy;
     }
 
-    public Option<List<FailedCheck>> failedChecks() {
+    public Option<List<FailedCheck>> getFailedChecks() {
       return Option.some(errors);
     }
 
@@ -246,7 +246,7 @@ public class LogicError {
     }
 
     @Override
-    public Option<List<FailedCheck>> failedChecks() {
+    public Option<List<FailedCheck>> getFailedChecks() {
       return Option.some(errors);
     }
 

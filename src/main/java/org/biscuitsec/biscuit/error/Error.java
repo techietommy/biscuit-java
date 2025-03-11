@@ -9,7 +9,7 @@ import java.util.Objects;
 import org.biscuitsec.biscuit.datalog.expressions.Expression;
 
 public class Error extends Exception {
-  public Option<List<FailedCheck>> failedChecks() {
+  public Option<List<FailedCheck>> getFailedChecks() {
     return Option.none();
   }
 
@@ -554,8 +554,8 @@ public class Error extends Exception {
     }
 
     @Override
-    public Option<List<FailedCheck>> failedChecks() {
-      return this.error.failedChecks();
+    public Option<List<FailedCheck>> getFailedChecks() {
+      return this.error.getFailedChecks();
     }
 
     @Override

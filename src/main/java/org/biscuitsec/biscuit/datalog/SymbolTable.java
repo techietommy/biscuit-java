@@ -237,10 +237,10 @@ public final class SymbolTable implements Serializable {
   public String formatCheck(final Check c) {
     String prefix;
     switch (c.kind()) {
-      case One:
+      case ONE:
         prefix = "check if ";
         break;
-      case All:
+      case ALL:
         prefix = "check all ";
         break;
       default:

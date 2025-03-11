@@ -39,7 +39,7 @@ public final class SchemaVersion {
 
     containsCheckAll = false;
     for (Check check : checks) {
-      if (check.kind() == Check.Kind.All) {
+      if (check.kind() == Check.Kind.ALL) {
         containsCheckAll = true;
         break;
       }

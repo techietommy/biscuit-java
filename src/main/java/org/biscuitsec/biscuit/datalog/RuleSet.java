@@ -38,10 +38,10 @@ public final class RuleSet {
   }
 
   public void clear() {
-    rules.clear();
+    this.rules.clear();
   }
 
   public HashMap<TrustedOrigins, List<Tuple2<Long, Rule>>> getRules() {
-    return rules;
+    return this.rules;
   }
 }

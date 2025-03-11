@@ -1,6 +1,6 @@
 package org.biscuitsec.biscuit.token.builder;
 
-import static org.biscuitsec.biscuit.datalog.Check.Kind.One;
+import static org.biscuitsec.biscuit.datalog.Check.Kind.ONE;
 import static org.biscuitsec.biscuit.token.UnverifiedBiscuit.defaultSymbolTable;
 import static org.biscuitsec.biscuit.token.builder.Utils.constrainedRule;
 import static org.biscuitsec.biscuit.token.builder.Utils.date;
@@ -118,45 +118,45 @@ public final class Block {
     return build(defaultSymbolTable(), externalKey);
   }
 
-  public org.biscuitsec.biscuit.token.Block build(SymbolTable symbols) {
-    return build(symbols, Option.none());
+  public org.biscuitsec.biscuit.token.Block build(SymbolTable symbolTable) {
+    return build(symbolTable, Option.none());
   }
 
   public org.biscuitsec.biscuit.token.Block build(
-      SymbolTable symbols, final Option<PublicKey> externalKey) {
+      SymbolTable symbolTable, final Option<PublicKey> externalKey) {
     if (externalKey.isDefined()) {
-      symbols = new SymbolTable();
+      symbolTable = new SymbolTable();
     }
-    final int symbolStart = symbols.currentOffset();
-    final int publicKeyStart = symbols.currentPublicKeyOffset();
+    final int symbolStart = symbolTable.currentOffset();
+    final int publicKeyStart = symbolTable.currentPublicKeyOffset();
 
     List<org.biscuitsec.biscuit.datalog.Fact> facts = new ArrayList<>();
     for (Fact f : this.facts) {
-      facts.add(f.convert(symbols));
+      facts.add(f.convert(symbolTable));
     }
     List<org.biscuitsec.biscuit.datalog.Rule> rules = new ArrayList<>();
     for (Rule r : this.rules) {
-      rules.add(r.convert(symbols));
+      rules.add(r.convert(symbolTable));
     }
     List<org.biscuitsec.biscuit.datalog.Check> checks = new ArrayList<>();
     for (Check c : this.checks) {
-      checks.add(c.convert(symbols));
+      checks.add(c.convert(symbolTable));
     }
     List<org.biscuitsec.biscuit.datalog.Scope> scopes = new ArrayList<>();
     for (Scope s : this.scopes) {
-      scopes.add(s.convert(symbols));
+      scopes.add(s.convert(symbolTable));
     }
     SchemaVersion schemaVersion = new SchemaVersion(facts, rules, checks, scopes);
 
     SymbolTable blockSymbols = new SymbolTable();
 
-    for (int i = symbolStart; i < symbols.symbols().size(); i++) {
-      blockSymbols.add(symbols.symbols().get(i));
+    for (int i = symbolStart; i < symbolTable.symbols().size(); i++) {
+      blockSymbols.add(symbolTable.symbols().get(i));
     }
 
     List<PublicKey> publicKeys = new ArrayList<>();
-    for (int i = publicKeyStart; i < symbols.currentPublicKeyOffset(); i++) {
-      publicKeys.add(symbols.getPublicKeys().get(i));
+    for (int i = publicKeyStart; i < symbolTable.currentPublicKeyOffset(); i++) {
+      publicKeys.add(symbolTable.getPublicKeys().get(i));
     }
 
     return new org.biscuitsec.biscuit.token.Block(
@@ -217,7 +217,7 @@ public final class Block {
                 pred("resource", Arrays.asList(var("resource"))),
                 pred("operation", Arrays.asList(str(right))),
                 pred("right", Arrays.asList(var("resource"), str(right))))));
-    return this.addCheck(new org.biscuitsec.biscuit.token.builder.Check(One, queries));
+    return this.addCheck(new org.biscuitsec.biscuit.token.builder.Check(ONE, queries));
   }
 
   public Block resourcePrefix(String prefix) {
@@ -233,7 +233,7 @@ public final class Block {
                     Expression.Op.Prefix,
                     new Expression.Value(var("resource")),
                     new Expression.Value(string(prefix))))));
-    return this.addCheck(new org.biscuitsec.biscuit.token.builder.Check(One, queries));
+    return this.addCheck(new org.biscuitsec.biscuit.token.builder.Check(ONE, queries));
   }
 
   public Block resourceSuffix(String suffix) {
@@ -249,7 +249,7 @@ public final class Block {
                     Expression.Op.Suffix,
                     new Expression.Value(var("resource")),
                     new Expression.Value(string(suffix))))));
-    return this.addCheck(new org.biscuitsec.biscuit.token.builder.Check(One, queries));
+    return this.addCheck(new org.biscuitsec.biscuit.token.builder.Check(ONE, queries));
   }
 
   public Block setExpirationDate(Date d) {
@@ -265,7 +265,7 @@ public final class Block {
                     Expression.Op.LessOrEqual,
                     new Expression.Value(var("date")),
                     new Expression.Value(date(d))))));
-    return this.addCheck(new org.biscuitsec.biscuit.token.builder.Check(One, queries));
+    return this.addCheck(new org.biscuitsec.biscuit.token.builder.Check(ONE, queries));
   }
 
   public String context() {

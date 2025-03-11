@@ -1,6 +1,6 @@
 package org.biscuitsec.biscuit.token.builder;
 
-import static org.biscuitsec.biscuit.datalog.Check.Kind.One;
+import static org.biscuitsec.biscuit.datalog.Check.Kind.ONE;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,20 +24,20 @@ public final class Check {
     queries = r;
   }
 
-  public org.biscuitsec.biscuit.datalog.Check convert(SymbolTable symbols) {
+  public org.biscuitsec.biscuit.datalog.Check convert(SymbolTable symbolTable) {
     ArrayList<org.biscuitsec.biscuit.datalog.Rule> queries = new ArrayList<>();
 
     for (Rule q : this.queries) {
-      queries.add(q.convert(symbols));
+      queries.add(q.convert(symbolTable));
     }
     return new org.biscuitsec.biscuit.datalog.Check(this.kind, queries);
   }
 
-  public static Check convertFrom(org.biscuitsec.biscuit.datalog.Check r, SymbolTable symbols) {
+  public static Check convertFrom(org.biscuitsec.biscuit.datalog.Check r, SymbolTable symbolTable) {
     ArrayList<Rule> queries = new ArrayList<>();
 
     for (org.biscuitsec.biscuit.datalog.Rule q : r.queries()) {
-      queries.add(Rule.convertFrom(q, symbols));
+      queries.add(Rule.convertFrom(q, symbolTable));
     }
 
     return new Check(r.kind(), queries);
@@ -48,7 +48,7 @@ public final class Check {
     final List<String> qs =
         queries.stream().map((q) -> q.bodyToString()).collect(Collectors.toList());
 
-    if (kind == One) {
+    if (kind == ONE) {
       return "check if " + String.join(" or ", qs);
     } else {
       return "check all " + String.join(" or ", qs);

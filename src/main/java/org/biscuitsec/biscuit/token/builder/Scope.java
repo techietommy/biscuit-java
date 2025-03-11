@@ -50,7 +50,7 @@ public final class Scope {
     return new Scope(Kind.Parameter, parameter);
   }
 
-  public org.biscuitsec.biscuit.datalog.Scope convert(SymbolTable symbols) {
+  public org.biscuitsec.biscuit.datalog.Scope convert(SymbolTable symbolTable) {
     switch (this.kind) {
       case Authority:
         return org.biscuitsec.biscuit.datalog.Scope.authority();
@@ -61,13 +61,13 @@ public final class Scope {
         return null;
       // throw new Exception("Remaining parameter: " + this.parameter);
       case PublicKey:
-        return org.biscuitsec.biscuit.datalog.Scope.publicKey(symbols.insert(this.publicKey));
+        return org.biscuitsec.biscuit.datalog.Scope.publicKey(symbolTable.insert(this.publicKey));
       default:
         return null;
     }
   }
 
-  public static Scope convertFrom(org.biscuitsec.biscuit.datalog.Scope scope, SymbolTable symbols) {
+  public static Scope convertFrom(org.biscuitsec.biscuit.datalog.Scope scope, SymbolTable symbolTable) {
     switch (scope.kind()) {
       case Authority:
         return new Scope(Kind.Authority);
@@ -75,7 +75,7 @@ public final class Scope {
         return new Scope(Kind.Previous);
       case PublicKey:
         // FIXME error management should bubble up here
-        return new Scope(Kind.PublicKey, symbols.getPublicKey((int) scope.getPublicKey()).get());
+        return new Scope(Kind.PublicKey, symbolTable.getPublicKey((int) scope.getPublicKey()).get());
       default:
         return null;
     }

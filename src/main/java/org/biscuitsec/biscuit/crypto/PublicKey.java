@@ -47,9 +47,9 @@ public final class PublicKey {
   }
 
   public byte[] toBytes() {
-    if (getAlgorithm() == Algorithm.Ed25519) {
+    if (this.algorithm == Algorithm.Ed25519) {
       return ((EdDSAPublicKey) getKey()).getAbyte();
-    } else if (getAlgorithm() == Algorithm.SECP256R1) {
+    } else if (this.algorithm == Algorithm.SECP256R1) {
       return ((BCECPublicKey) getKey()).getQ().getEncoded(true); // true = compressed
     } else {
       throw new IllegalArgumentException("Invalid algorithm");
@@ -60,11 +60,10 @@ public final class PublicKey {
     return Utils.byteArrayToHexString(this.toBytes());
   }
 
-
   public Schema.PublicKey serialize() {
     Schema.PublicKey.Builder publicKey = Schema.PublicKey.newBuilder();
     publicKey.setKey(ByteString.copyFrom(this.toBytes()));
-    publicKey.setAlgorithm(this.getAlgorithm());
+    publicKey.setAlgorithm(this.algorithm);
     return publicKey.build();
   }
 
@@ -105,7 +104,7 @@ public final class PublicKey {
 
     PublicKey publicKey = (PublicKey) o;
 
-    return getKey().equals(publicKey.getKey());
+    return this.key.equals(publicKey.getKey());
   }
 
   @Override
@@ -115,9 +114,9 @@ public final class PublicKey {
 
   @Override
   public String toString() {
-    if (getAlgorithm() == Algorithm.Ed25519) {
+    if (this.algorithm == Algorithm.Ed25519) {
       return "ed25519/" + toHex().toLowerCase();
-    } else if (getAlgorithm() == Algorithm.SECP256R1) {
+    } else if (this.algorithm == Algorithm.SECP256R1) {
       return "secp256r1/" + toHex().toLowerCase();
     } else {
       return null;
@@ -125,10 +124,10 @@ public final class PublicKey {
   }
 
   public java.security.PublicKey getKey() {
-    return key;
+    return this.key;
   }
 
   public Algorithm getAlgorithm() {
-    return algorithm;
+    return this.algorithm;
   }
 }

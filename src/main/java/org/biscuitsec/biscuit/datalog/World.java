@@ -28,11 +28,11 @@ public final class World implements Serializable {
     this.rules.clear();
   }
 
-  public void run(final SymbolTable symbols) throws Error {
-    this.run(new RunLimits(), symbols);
+  public void run(final SymbolTable symbolTable) throws Error {
+    this.run(new RunLimits(), symbolTable);
   }
 
-  public void run(RunLimits limits, final SymbolTable symbols) throws Error {
+  public void run(RunLimits limits, final SymbolTable symbolTable) throws Error {
     int iterations = 0;
     Instant limit = Instant.now().plus(limits.getMaxTime());
 
@@ -46,7 +46,7 @@ public final class World implements Serializable {
               () -> this.facts.stream(entry.getKey());
 
           Stream<Either<Error, Tuple2<Origin, Fact>>> stream =
-              t._2.apply(factsSupplier, t._1, symbols);
+              t._2.apply(factsSupplier, t._1, symbolTable);
           for (Iterator<Either<Error, Tuple2<Origin, Fact>>> it = stream.iterator();
               it.hasNext(); ) {
             Either<Error, Tuple2<Origin, Fact>> res = it.next();
@@ -90,13 +90,13 @@ public final class World implements Serializable {
     return this.rules;
   }
 
-  public FactSet queryRule(final Rule rule, Long origin, TrustedOrigins scope, SymbolTable symbols)
+  public FactSet queryRule(final Rule rule, Long origin, TrustedOrigins scope, SymbolTable symbolTable)
       throws Error {
     final FactSet newFacts = new FactSet();
 
     Supplier<Stream<Tuple2<Origin, Fact>>> factsSupplier = () -> this.facts.stream(scope);
 
-    Stream<Either<Error, Tuple2<Origin, Fact>>> stream = rule.apply(factsSupplier, origin, symbols);
+    Stream<Either<Error, Tuple2<Origin, Fact>>> stream = rule.apply(factsSupplier, origin, symbolTable);
     for (Iterator<Either<Error, Tuple2<Origin, Fact>>> it = stream.iterator(); it.hasNext(); ) {
       Either<Error, Tuple2<Origin, Fact>> res = it.next();
 
@@ -111,14 +111,14 @@ public final class World implements Serializable {
     return newFacts;
   }
 
-  public boolean queryMatch(final Rule rule, Long origin, TrustedOrigins scope, SymbolTable symbols)
+  public boolean queryMatch(final Rule rule, Long origin, TrustedOrigins scope, SymbolTable symbolTable)
       throws Error {
-    return rule.findMatch(this.facts, origin, scope, symbols);
+    return rule.findMatch(this.facts, origin, scope, symbolTable);
   }
 
-  public boolean queryMatchAll(final Rule rule, TrustedOrigins scope, SymbolTable symbols)
+  public boolean queryMatchAll(final Rule rule, TrustedOrigins scope, SymbolTable symbolTable)
       throws Error {
-    return rule.checkMatchAll(this.facts, scope, symbols);
+    return rule.checkMatchAll(this.facts, scope, symbolTable);
   }
 
   public World() {

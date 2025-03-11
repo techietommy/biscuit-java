@@ -9,22 +9,22 @@ import org.biscuitsec.biscuit.datalog.SymbolTable;
 
 public abstract class Expression {
 
-  public final org.biscuitsec.biscuit.datalog.expressions.Expression convert(SymbolTable symbols) {
+  public final org.biscuitsec.biscuit.datalog.expressions.Expression convert(SymbolTable symbolTable) {
     ArrayList<org.biscuitsec.biscuit.datalog.expressions.Op> ops = new ArrayList<>();
-    this.toOpcodes(symbols, ops);
+    this.toOpcodes(symbolTable, ops);
 
     return new org.biscuitsec.biscuit.datalog.expressions.Expression(ops);
   }
 
   public static Expression convertFrom(
-      org.biscuitsec.biscuit.datalog.expressions.Expression e, SymbolTable symbols) {
+      org.biscuitsec.biscuit.datalog.expressions.Expression e, SymbolTable symbolTable) {
     ArrayList<Op> ops = new ArrayList<>();
     Deque<Expression> stack = new ArrayDeque<Expression>(16);
     for (org.biscuitsec.biscuit.datalog.expressions.Op op : e.getOps()) {
       if (op instanceof org.biscuitsec.biscuit.datalog.expressions.Op.Value) {
         org.biscuitsec.biscuit.datalog.expressions.Op.Value v =
             (org.biscuitsec.biscuit.datalog.expressions.Op.Value) op;
-        stack.push(new Expression.Value(Term.convertFrom(v.getValue(), symbols)));
+        stack.push(new Expression.Value(Term.convertFrom(v.getValue(), symbolTable)));
       } else if (op instanceof org.biscuitsec.biscuit.datalog.expressions.Op.Unary) {
         org.biscuitsec.biscuit.datalog.expressions.Op.Unary v =
             (org.biscuitsec.biscuit.datalog.expressions.Op.Unary) op;
@@ -123,7 +123,7 @@ public abstract class Expression {
   }
 
   public abstract void toOpcodes(
-      SymbolTable symbols, List<org.biscuitsec.biscuit.datalog.expressions.Op> ops);
+      SymbolTable symbolTable, List<org.biscuitsec.biscuit.datalog.expressions.Op> ops);
 
   public abstract void gatherVariables(Set<String> variables);
 
@@ -162,8 +162,8 @@ public abstract class Expression {
     }
 
     public void toOpcodes(
-        SymbolTable symbols, List<org.biscuitsec.biscuit.datalog.expressions.Op> ops) {
-      ops.add(new org.biscuitsec.biscuit.datalog.expressions.Op.Value(this.value.convert(symbols)));
+            SymbolTable symbolTable, List<org.biscuitsec.biscuit.datalog.expressions.Op> ops) {
+      ops.add(new org.biscuitsec.biscuit.datalog.expressions.Op.Value(this.value.convert(symbolTable)));
     }
 
     public void gatherVariables(Set<String> variables) {
@@ -207,8 +207,8 @@ public abstract class Expression {
     }
 
     public void toOpcodes(
-        SymbolTable symbols, List<org.biscuitsec.biscuit.datalog.expressions.Op> ops) {
-      this.arg1.toOpcodes(symbols, ops);
+            SymbolTable symbolTable, List<org.biscuitsec.biscuit.datalog.expressions.Op> ops) {
+      this.arg1.toOpcodes(symbolTable, ops);
 
       switch (this.op) {
         case Negate:
@@ -286,9 +286,9 @@ public abstract class Expression {
     }
 
     public void toOpcodes(
-        SymbolTable symbols, List<org.biscuitsec.biscuit.datalog.expressions.Op> ops) {
-      this.arg1.toOpcodes(symbols, ops);
-      this.arg2.toOpcodes(symbols, ops);
+            SymbolTable symbolTable, List<org.biscuitsec.biscuit.datalog.expressions.Op> ops) {
+      this.arg1.toOpcodes(symbolTable, ops);
+      this.arg2.toOpcodes(symbolTable, ops);
 
       switch (this.op) {
         case LessThan:

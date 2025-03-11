@@ -15,8 +15,8 @@ public final class Policy {
   }
 
   public enum Kind {
-    Allow,
-    Deny,
+    ALLOW,
+    DENY,
   }
 
   private final List<Rule> queries;
@@ -41,9 +41,9 @@ public final class Policy {
         queries.stream().map((q) -> q.bodyToString()).collect(Collectors.toList());
 
     switch (this.kind) {
-      case Allow:
+      case ALLOW:
         return "allow if " + String.join(" or ", qs);
-      case Deny:
+      case DENY:
         return "deny if " + String.join(" or ", qs);
       default:
         return null;

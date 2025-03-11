@@ -29,19 +29,19 @@ import org.biscuitsec.biscuit.token.format.SerializedBiscuit;
 public class UnverifiedBiscuit {
   protected final Block authority;
   protected final List<Block> blocks;
-  protected final SymbolTable symbols;
+  protected final SymbolTable symbolTable;
   protected final SerializedBiscuit serializedBiscuit;
   protected final List<byte[]> revocationIds;
 
   UnverifiedBiscuit(
       Block authority,
       List<Block> blocks,
-      SymbolTable symbols,
+      SymbolTable symbolTable,
       SerializedBiscuit serializedBiscuit,
       List<byte[]> revocationIds) {
     this.authority = authority;
     this.blocks = blocks;
-    this.symbols = symbols;
+    this.symbolTable = symbolTable;
     this.serializedBiscuit = serializedBiscuit;
     this.revocationIds = revocationIds;
   }
@@ -76,10 +76,10 @@ public class UnverifiedBiscuit {
    * @param data
    * @return UnverifiedBiscuit
    */
-  public static UnverifiedBiscuit fromBytesWithSymbols(byte[] data, SymbolTable symbols)
+  public static UnverifiedBiscuit fromBytesWithSymbols(byte[] data, SymbolTable symbolTable)
       throws Error {
     SerializedBiscuit ser = SerializedBiscuit.deserializeUnsafe(data);
-    return UnverifiedBiscuit.fromSerializedBiscuit(ser, symbols);
+    return UnverifiedBiscuit.fromSerializedBiscuit(ser, symbolTable);
   }
 
   /**
@@ -87,15 +87,15 @@ public class UnverifiedBiscuit {
    *
    * @return UnverifiedBiscuit
    */
-  private static UnverifiedBiscuit fromSerializedBiscuit(SerializedBiscuit ser, SymbolTable symbols)
+  private static UnverifiedBiscuit fromSerializedBiscuit(SerializedBiscuit ser, SymbolTable symbolTable)
       throws Error {
-    Tuple2<Block, ArrayList<Block>> t = ser.extractBlocks(symbols);
+    Tuple2<Block, ArrayList<Block>> t = ser.extractBlocks(symbolTable);
     Block authority = t._1;
     ArrayList<Block> blocks = t._2;
 
     List<byte[]> revocationIds = ser.revocationIdentifiers();
 
-    return new UnverifiedBiscuit(authority, blocks, symbols, ser, revocationIds);
+    return new UnverifiedBiscuit(authority, blocks, symbolTable, ser, revocationIds);
   }
 
   /**
@@ -137,7 +137,7 @@ public class UnverifiedBiscuit {
       org.biscuitsec.biscuit.token.builder.Block block, Algorithm algorithm) throws Error {
     SecureRandom rng = new SecureRandom();
     KeyPair keypair = KeyPair.generate(algorithm, rng);
-    SymbolTable builderSymbols = new SymbolTable(this.symbols);
+    SymbolTable builderSymbols = new SymbolTable(this.symbolTable);
     return attenuate(rng, keypair, block.build(builderSymbols));
   }
 
@@ -146,7 +146,7 @@ public class UnverifiedBiscuit {
       final KeyPair keypair,
       org.biscuitsec.biscuit.token.builder.Block block)
       throws Error {
-    SymbolTable builderSymbols = new SymbolTable(this.symbols);
+    SymbolTable builderSymbols = new SymbolTable(this.symbolTable);
     return attenuate(rng, keypair, block.build(builderSymbols));
   }
 
@@ -162,7 +162,7 @@ public class UnverifiedBiscuit {
       throws Error {
     UnverifiedBiscuit copiedBiscuit = this.copy();
 
-    if (!copiedBiscuit.symbols.disjoint(block.symbols())) {
+    if (!copiedBiscuit.symbolTable.disjoint(block.symbols())) {
       throw new Error.SymbolTableOverlap();
     }
 
@@ -172,8 +172,7 @@ public class UnverifiedBiscuit {
       throw containerRes.getLeft();
     }
 
-
-    SymbolTable symbols = new SymbolTable(copiedBiscuit.symbols);
+    SymbolTable symbols = new SymbolTable(copiedBiscuit.symbolTable);
     for (String s : block.symbols().symbols()) {
       symbols.add(s);
     }
@@ -292,7 +291,7 @@ public class UnverifiedBiscuit {
 
     SerializedBiscuit container = containerRes.get();
 
-    SymbolTable symbols = new SymbolTable(copiedBiscuit.symbols);
+    SymbolTable symbols = new SymbolTable(copiedBiscuit.symbolTable);
 
     ArrayList<Block> blocks = new ArrayList<>();
     for (Block b : copiedBiscuit.blocks) {
@@ -309,13 +308,13 @@ public class UnverifiedBiscuit {
   public String print() {
     StringBuilder s = new StringBuilder();
     s.append("UnverifiedBiscuit {\n\tsymbols: ");
-    s.append(this.symbols.getAllSymbols());
+    s.append(this.symbolTable.getAllSymbols());
     s.append("\n\tauthority: ");
-    s.append(this.authority.print(this.symbols));
+    s.append(this.authority.print(this.symbolTable));
     s.append("\n\tblocks: [\n");
     for (Block b : this.blocks) {
       s.append("\t\t");
-      s.append(b.print(this.symbols));
+      s.append(b.print(this.symbolTable));
       s.append("\n");
     }
     s.append("\t]\n}");
@@ -344,7 +343,7 @@ public class UnverifiedBiscuit {
     if (result.isLeft()) {
       throw result.getLeft();
     }
-    return Biscuit.fromSerializedBiscuit(serializedBiscuit, this.symbols);
+    return Biscuit.fromSerializedBiscuit(serializedBiscuit, this.symbolTable);
   }
 
   public Biscuit verify(KeyDelegate delegate)
@@ -360,6 +359,6 @@ public class UnverifiedBiscuit {
     if (result.isLeft()) {
       throw result.getLeft();
     }
-    return Biscuit.fromSerializedBiscuit(serializedBiscuit, this.symbols);
+    return Biscuit.fromSerializedBiscuit(serializedBiscuit, this.symbolTable);
   }
 }

@@ -1,6 +1,6 @@
 package org.biscuitsec.biscuit.token.builder;
 
-import static org.biscuitsec.biscuit.datalog.Check.Kind.One;
+import static org.biscuitsec.biscuit.datalog.Check.Kind.ONE;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -32,7 +32,7 @@ public final class Utils {
   }
 
   public static Check check(Rule rule) {
-    return new Check(One, rule);
+    return new Check(ONE, rule);
   }
 
   public static Term integer(long i) {

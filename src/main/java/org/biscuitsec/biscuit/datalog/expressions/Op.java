@@ -21,7 +21,7 @@ import org.biscuitsec.biscuit.error.Error;
 
 public abstract class Op {
   public abstract void evaluate(
-      Deque<Term> stack, Map<Long, Term> variables, TemporarySymbolTable symbols)
+      Deque<Term> stack, Map<Long, Term> variables, TemporarySymbolTable temporarySymbolTable)
       throws Error.Execution;
 
   public abstract String print(Deque<String> stack, SymbolTable symbols);
@@ -52,7 +52,7 @@ public abstract class Op {
     }
 
     @Override
-    public void evaluate(Deque<Term> stack, Map<Long, Term> variables, TemporarySymbolTable symbols)
+    public void evaluate(Deque<Term> stack, Map<Long, Term> variables, TemporarySymbolTable temporarySymbolTable)
         throws Error.Execution {
       if (value instanceof Term.Variable) {
         Term.Variable var = (Term.Variable) value;
@@ -68,8 +68,8 @@ public abstract class Op {
     }
 
     @Override
-    public String print(Deque<String> stack, SymbolTable symbols) {
-      String s = symbols.formatTerm(value);
+    public String print(Deque<String> stack, SymbolTable symbolTable) {
+      String s = symbolTable.formatTerm(value);
       stack.push(s);
       return s;
     }
@@ -126,7 +126,7 @@ public abstract class Op {
     }
 
     @Override
-    public void evaluate(Deque<Term> stack, Map<Long, Term> variables, TemporarySymbolTable symbols)
+    public void evaluate(Deque<Term> stack, Map<Long, Term> variables, TemporarySymbolTable temporarySymbolTable)
         throws Error.Execution {
       Term value = stack.pop();
       switch (this.op) {
@@ -143,7 +143,7 @@ public abstract class Op {
           break;
         case Length:
           if (value instanceof Term.Str) {
-            Option<String> s = symbols.getSymbol((int) ((Term.Str) value).value());
+            Option<String> s = temporarySymbolTable.getSymbol((int) ((Term.Str) value).value());
             if (s.isEmpty()) {
               throw new Error.Execution("string not found in symbols for id" + value);
             } else {
@@ -167,7 +167,7 @@ public abstract class Op {
     }
 
     @Override
-    public String print(Deque<String> stack, SymbolTable symbols) {
+    public String print(Deque<String> stack, SymbolTable symbolTable) {
       String prec = stack.pop();
       String s = "";
       switch (this.op) {
@@ -287,7 +287,7 @@ public abstract class Op {
     }
 
     @Override
-    public void evaluate(Deque<Term> stack, Map<Long, Term> variables, TemporarySymbolTable symbols)
+    public void evaluate(Deque<Term> stack, Map<Long, Term> variables, TemporarySymbolTable temporarySymbolTable)
         throws Error.Execution {
       Term right = stack.pop();
       Term left = stack.pop();
@@ -397,8 +397,8 @@ public abstract class Op {
             stack.push(new Term.Bool(leftSet.containsAll(rightSet)));
           }
           if (left instanceof Term.Str && right instanceof Term.Str) {
-            Option<String> leftS = symbols.getSymbol((int) ((Term.Str) left).value());
-            Option<String> rightS = symbols.getSymbol((int) ((Term.Str) right).value());
+            Option<String> leftS = temporarySymbolTable.getSymbol((int) ((Term.Str) left).value());
+            Option<String> rightS = temporarySymbolTable.getSymbol((int) ((Term.Str) right).value());
 
             if (leftS.isEmpty()) {
               throw new Error.Execution(
@@ -414,8 +414,8 @@ public abstract class Op {
           break;
         case Prefix:
           if (right instanceof Term.Str && left instanceof Term.Str) {
-            Option<String> leftS = symbols.getSymbol((int) ((Term.Str) left).value());
-            Option<String> rightS = symbols.getSymbol((int) ((Term.Str) right).value());
+            Option<String> leftS = temporarySymbolTable.getSymbol((int) ((Term.Str) left).value());
+            Option<String> rightS = temporarySymbolTable.getSymbol((int) ((Term.Str) right).value());
             if (leftS.isEmpty()) {
               throw new Error.Execution(
                   "cannot find string in symbols for index " + ((Term.Str) left).value());
@@ -430,8 +430,8 @@ public abstract class Op {
           break;
         case Suffix:
           if (right instanceof Term.Str && left instanceof Term.Str) {
-            Option<String> leftS = symbols.getSymbol((int) ((Term.Str) left).value());
-            Option<String> rightS = symbols.getSymbol((int) ((Term.Str) right).value());
+            Option<String> leftS = temporarySymbolTable.getSymbol((int) ((Term.Str) left).value());
+            Option<String> rightS = temporarySymbolTable.getSymbol((int) ((Term.Str) right).value());
             if (leftS.isEmpty()) {
               throw new Error.Execution(
                   "cannot find string in symbols for index " + ((Term.Str) left).value());
@@ -445,8 +445,8 @@ public abstract class Op {
           break;
         case Regex:
           if (right instanceof Term.Str && left instanceof Term.Str) {
-            Option<String> leftS = symbols.getSymbol((int) ((Term.Str) left).value());
-            Option<String> rightS = symbols.getSymbol((int) ((Term.Str) right).value());
+            Option<String> leftS = temporarySymbolTable.getSymbol((int) ((Term.Str) left).value());
+            Option<String> rightS = temporarySymbolTable.getSymbol((int) ((Term.Str) right).value());
             if (leftS.isEmpty()) {
               throw new Error.Execution(
                   "cannot find string in symbols for index " + ((Term.Str) left).value());
@@ -473,8 +473,8 @@ public abstract class Op {
             }
           }
           if (right instanceof Term.Str && left instanceof Term.Str) {
-            Option<String> leftS = symbols.getSymbol((int) ((Term.Str) left).value());
-            Option<String> rightS = symbols.getSymbol((int) ((Term.Str) right).value());
+            Option<String> leftS = temporarySymbolTable.getSymbol((int) ((Term.Str) left).value());
+            Option<String> rightS = temporarySymbolTable.getSymbol((int) ((Term.Str) right).value());
 
             if (leftS.isEmpty()) {
               throw new Error.Execution(
@@ -486,7 +486,7 @@ public abstract class Op {
             }
 
             String concatenation = leftS.get() + rightS.get();
-            long index = symbols.insert(concatenation);
+            long index = temporarySymbolTable.insert(concatenation);
             stack.push(new Term.Str(index));
           }
           break;
@@ -582,7 +582,7 @@ public abstract class Op {
     }
 
     @Override
-    public String print(Deque<String> stack, SymbolTable symbols) {
+    public String print(Deque<String> stack, SymbolTable symbolTable) {
       String right = stack.pop();
       String left = stack.pop();
       String s = "";

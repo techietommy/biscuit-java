@@ -146,37 +146,37 @@ public final class Biscuit {
     return build(defaultSymbolTable());
   }
 
-  private org.biscuitsec.biscuit.token.Biscuit build(SymbolTable symbols) throws Error {
-    final int symbolStart = symbols.currentOffset();
-    final int publicKeyStart = symbols.currentPublicKeyOffset();
+  private org.biscuitsec.biscuit.token.Biscuit build(SymbolTable symbolTable) throws Error {
+    final int symbolStart = symbolTable.currentOffset();
+    final int publicKeyStart = symbolTable.currentPublicKeyOffset();
 
     List<org.biscuitsec.biscuit.datalog.Fact> facts = new ArrayList<>();
     for (Fact f : this.facts) {
-      facts.add(f.convert(symbols));
+      facts.add(f.convert(symbolTable));
     }
     List<org.biscuitsec.biscuit.datalog.Rule> rules = new ArrayList<>();
     for (Rule r : this.rules) {
-      rules.add(r.convert(symbols));
+      rules.add(r.convert(symbolTable));
     }
     List<org.biscuitsec.biscuit.datalog.Check> checks = new ArrayList<>();
     for (Check c : this.checks) {
-      checks.add(c.convert(symbols));
+      checks.add(c.convert(symbolTable));
     }
     List<org.biscuitsec.biscuit.datalog.Scope> scopes = new ArrayList<>();
     for (Scope s : this.scopes) {
-      scopes.add(s.convert(symbols));
+      scopes.add(s.convert(symbolTable));
     }
     SchemaVersion schemaVersion = new SchemaVersion(facts, rules, checks, scopes);
 
     SymbolTable blockSymbols = new SymbolTable();
 
-    for (int i = symbolStart; i < symbols.symbols().size(); i++) {
-      blockSymbols.add(symbols.symbols().get(i));
+    for (int i = symbolStart; i < symbolTable.symbols().size(); i++) {
+      blockSymbols.add(symbolTable.symbols().get(i));
     }
 
     List<PublicKey> publicKeys = new ArrayList<>();
-    for (int i = publicKeyStart; i < symbols.currentPublicKeyOffset(); i++) {
-      publicKeys.add(symbols.getPublicKeys().get(i));
+    for (int i = publicKeyStart; i < symbolTable.currentPublicKeyOffset(); i++) {
+      publicKeys.add(symbolTable.getPublicKeys().get(i));
     }
 
     Block authorityBlock =

@@ -414,7 +414,7 @@ public final class SerializedBiscuit {
     return Right(nextKey);
   }
 
-  public Tuple2<Block, ArrayList<Block>> extractBlocks(SymbolTable symbols) throws Error {
+  public Tuple2<Block, ArrayList<Block>> extractBlocks(SymbolTable symbolTable) throws Error {
     ArrayList<Option<org.biscuitsec.biscuit.crypto.PublicKey>> blockExternalKeys =
         new ArrayList<>();
     Either<Error.FormatError, Block> authRes =
@@ -424,12 +424,12 @@ public final class SerializedBiscuit {
     }
     Block authority = authRes.get();
     for (org.biscuitsec.biscuit.crypto.PublicKey pk : authority.publicKeys()) {
-      symbols.insert(pk);
+      symbolTable.insert(pk);
     }
     blockExternalKeys.add(Option.none());
 
     for (String s : authority.symbols().symbols()) {
-      symbols.add(s);
+      symbolTable.add(s);
     }
 
     ArrayList<Block> blocks = new ArrayList<>();
@@ -446,15 +446,15 @@ public final class SerializedBiscuit {
 
       // blocks with external signatures keep their own symbol table
       if (bdata.getExternalSignature().isDefined()) {
-        // symbols.insert(bdata.externalSignature.get().key);
+        // symbolTable.insert(bdata.externalSignature.get().key);
         blockExternalKeys.add(Option.some(bdata.getExternalSignature().get().getKey()));
       } else {
         blockExternalKeys.add(Option.none());
         for (String s : block.symbols().symbols()) {
-          symbols.add(s);
+          symbolTable.add(s);
         }
         for (org.biscuitsec.biscuit.crypto.PublicKey pk : block.publicKeys()) {
-          symbols.insert(pk);
+          symbolTable.insert(pk);
         }
       }
 

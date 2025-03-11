@@ -16,14 +16,14 @@ public final class RunLimits {
   }
 
   public int getMaxFacts() {
-    return maxFacts;
+    return this.maxFacts;
   }
 
   public int getMaxIterations() {
-    return maxIterations;
+    return this.maxIterations;
   }
 
   public Duration getMaxTime() {
-    return maxTime;
+    return this.maxTime;
   }
 }

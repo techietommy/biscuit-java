@@ -24,6 +24,8 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
+
 import org.biscuitsec.biscuit.crypto.KeyDelegate;
 import org.biscuitsec.biscuit.crypto.KeyPair;
 import org.biscuitsec.biscuit.crypto.PublicKey;
@@ -80,10 +82,10 @@ public class BiscuitTest {
         check(
             rule(
                 "caveat1",
-                Arrays.asList(var("resource")),
+                    List.of(var("resource")),
                 Arrays.asList(
-                    pred("resource", Arrays.asList(var("resource"))),
-                    pred("operation", Arrays.asList(str("read"))),
+                    pred("resource", List.of(var("resource"))),
+                    pred("operation", List.of(str("read"))),
                     pred("right", Arrays.asList(var("resource"), str("read")))))));
 
     Biscuit b2 = deser.attenuate(rng, keypair2, builder);
@@ -113,8 +115,8 @@ public class BiscuitTest {
         check(
             rule(
                 "caveat2",
-                Arrays.asList(str("file1")),
-                Arrays.asList(pred("resource", Arrays.asList(str("file1")))))));
+                    List.of(str("file1")),
+                    List.of(pred("resource", List.of(str("file1")))))));
 
     Biscuit b3 = deser2.attenuate(rng, keypair3, builder3);
 
@@ -223,7 +225,7 @@ public class BiscuitTest {
       fail();
     } catch (Error e) {
       System.out.println(v3.formatWorld());
-      for (FailedCheck f : e.failedChecks().get()) {
+      for (FailedCheck f : e.getFailedChecks().get()) {
         System.out.println(f.toString());
       }
       assertEquals(
@@ -252,7 +254,7 @@ public class BiscuitTest {
 
     Block authorityBuilder = new Block();
     Date date = Date.from(Instant.now());
-    authorityBuilder.addFact(fact("revocation_id", Arrays.asList(date(date))));
+    authorityBuilder.addFact(fact("revocation_id", List.of(date(date))));
 
     Biscuit biscuit = Biscuit.make(rng, root, authorityBuilder.build());
 
@@ -337,7 +339,7 @@ public class BiscuitTest {
     Error e = (Error) Try.of(() -> v4.authorize()).getCause();
 
     System.out.println(v4.formatWorld());
-    for (FailedCheck f : e.failedChecks().get()) {
+    for (FailedCheck f : e.getFailedChecks().get()) {
       System.out.println(f.toString());
     }
     assertEquals(
@@ -439,10 +441,10 @@ public class BiscuitTest {
         check(
             rule(
                 "caveat1",
-                Arrays.asList(var("resource")),
+                    List.of(var("resource")),
                 Arrays.asList(
-                    pred("resource", Arrays.asList(var("resource"))),
-                    pred("operation", Arrays.asList(str("read"))),
+                    pred("resource", List.of(var("resource"))),
+                    pred("operation", List.of(str("read"))),
                     pred("namespace:right", Arrays.asList(var("resource"), str("read")))))));
 
     Biscuit b2 = deser.attenuate(rng, keypair2, builder);
@@ -472,8 +474,8 @@ public class BiscuitTest {
         check(
             rule(
                 "caveat2",
-                Arrays.asList(str("file1")),
-                Arrays.asList(pred("resource", Arrays.asList(str("file1")))))));
+                    List.of(str("file1")),
+                    List.of(pred("resource", List.of(str("file1")))))));
 
     Biscuit b3 = deser2.attenuate(rng, keypair3, builder3);
 
@@ -537,7 +539,6 @@ public class BiscuitTest {
 
     KeyPair root = KeyPair.generate(Schema.PublicKey.Algorithm.Ed25519, rng);
 
-    SymbolTable symbols = Biscuit.defaultSymbolTable();
     org.biscuitsec.biscuit.token.builder.Biscuit o =
         new org.biscuitsec.biscuit.token.builder.Biscuit(rng, root);
     o.addAuthorityFact("namespace:right(\"file1\",\"read\")");
@@ -570,10 +571,10 @@ public class BiscuitTest {
         check(
             rule(
                 "caveat1",
-                Arrays.asList(var("resource")),
+                    List.of(var("resource")),
                 Arrays.asList(
-                    pred("resource", Arrays.asList(var("resource"))),
-                    pred("operation", Arrays.asList(str("read"))),
+                    pred("resource", List.of(var("resource"))),
+                    pred("operation", List.of(str("read"))),
                     pred("namespace:right", Arrays.asList(var("resource"), str("read")))))));
 
     Biscuit b2 = deser.attenuate(rng, keypair2, builder);
@@ -603,8 +604,8 @@ public class BiscuitTest {
         check(
             rule(
                 "caveat2",
-                Arrays.asList(str("file1")),
-                Arrays.asList(pred("resource", Arrays.asList(str("file1")))))));
+                    List.of(str("file1")),
+                    List.of(pred("resource", List.of(str("file1")))))));
 
     Biscuit b3 = deser2.attenuate(rng, keypair3, builder3);
 
@@ -761,12 +762,12 @@ public class BiscuitTest {
           new Error.FailedLogic(
               new LogicError.Unauthorized(
                   new LogicError.MatchedPolicy.Allow(0),
-                  Arrays.asList(
-                      new FailedCheck.FailedBlock(
-                          0,
-                          0,
-                          "check all operation($op), allowed_operations($allowed),"
-                              + " $allowed.contains($op)")))),
+                      List.of(
+                              new FailedCheck.FailedBlock(
+                                      0,
+                                      0,
+                                      "check all operation($op), allowed_operations($allowed),"
+                                              + " $allowed.contains($op)")))),
           e);
     }
 

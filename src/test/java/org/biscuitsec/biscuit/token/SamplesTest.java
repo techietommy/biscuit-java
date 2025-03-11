@@ -58,7 +58,7 @@ class SamplesTest {
     assertEquals(sampleBlocks.size(), 1 + token.blocks.size());
     Option<Biscuit> sampleToken = Option.none();
     Biscuit b =
-        compareBlock(root, sampleToken, 0, sampleBlocks.get(0), token.authority, token.symbols);
+        compareBlock(root, sampleToken, 0, sampleBlocks.get(0), token.authority, token.symbolTable);
     sampleToken = Option.some(b);
 
     for (int i = 0; i < token.blocks.size(); i++) {
@@ -69,7 +69,7 @@ class SamplesTest {
               i + 1,
               sampleBlocks.get(i + 1),
               token.blocks.get(i),
-              token.symbols);
+              token.symbolTable);
       sampleToken = Option.some(b);
     }
   }
@@ -115,12 +115,12 @@ class SamplesTest {
     }
 
     System.out.println("generated block: ");
-    System.out.println(generatedSampleBlock.print(newSampleToken.symbols));
+    System.out.println(generatedSampleBlock.print(newSampleToken.symbolTable));
     System.out.println("deserialized block: ");
-    System.out.println(tokenBlock.print(newSampleToken.symbols));
+    System.out.println(tokenBlock.print(newSampleToken.symbolTable));
 
     SymbolTable tokenBlockSymbols = tokenSymbols;
-    SymbolTable generatedBlockSymbols = newSampleToken.symbols;
+    SymbolTable generatedBlockSymbols = newSampleToken.symbolTable;
     assertEquals(
         generatedSampleBlock.printCode(generatedBlockSymbols),
         tokenBlock.printCode(tokenBlockSymbols));
@@ -176,8 +176,8 @@ class SamplesTest {
                               fromBytes(serBlockAuthority, token.authority.getExternalKey())
                                   .get();
                           assertEquals(
-                              token.authority.print(token.symbols),
-                              deserBlockAuthority.print(token.symbols));
+                              token.authority.print(token.symbolTable),
+                              deserBlockAuthority.print(token.symbolTable));
                           assert (Arrays.equals(
                               serBlockAuthority,
                               token.serializedBiscuit.getAuthority().getBlock()));
@@ -189,7 +189,7 @@ class SamplesTest {
                             org.biscuitsec.biscuit.token.Block deserBlock =
                                 fromBytes(serBlock, block.getExternalKey()).get();
                             assertEquals(
-                                block.print(token.symbols), deserBlock.print(token.symbols));
+                                block.print(token.symbolTable), deserBlock.print(token.symbolTable));
                             assert (Arrays.equals(serBlock, signedBlock.getBlock()));
                           }
 

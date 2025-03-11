@@ -18,7 +18,7 @@ public final class Combinator implements Serializable, Iterator<Tuple2<Origin, M
   private final List<Predicate> predicates;
   private final Iterator<Tuple2<Origin, Fact>> currentFacts;
   private Combinator currentIt;
-  private final SymbolTable symbols;
+  private final SymbolTable symbolTable;
 
   private Origin currentOrigin;
 
@@ -119,7 +119,7 @@ public final class Combinator implements Serializable, Iterator<Tuple2<Origin, M
               // no need to copy all the expressions at all levels
               this.currentIt =
                   new Combinator(
-                      vars, predicates.subList(1, predicates.size()), this.allFacts, this.symbols);
+                      vars, predicates.subList(1, predicates.size()), this.allFacts, this.symbolTable);
             }
             break;
 
@@ -149,14 +149,14 @@ public final class Combinator implements Serializable, Iterator<Tuple2<Origin, M
       final MatchedVariables variables,
       final List<Predicate> predicates,
       Supplier<Stream<Tuple2<Origin, Fact>>> allFacts,
-      final SymbolTable symbols) {
+      final SymbolTable symbolTable) {
     this.variables = variables;
     this.allFacts = allFacts;
     this.currentIt = null;
     this.predicates = predicates;
     this.currentFacts =
         allFacts.get().filter((tuple) -> tuple._2.matchPredicate(predicates.get(0))).iterator();
-    this.symbols = symbols;
+    this.symbolTable = symbolTable;
     this.currentOrigin = null;
     this.nextElement = null;
   }
