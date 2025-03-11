@@ -255,7 +255,11 @@
                 <version>${spotless.version}</version>
                 <configuration>
                     <java>
-                        <googleJavaFormat/>
+                        <googleJavaFormat>
+                            <reflowLongStrings>true</reflowLongStrings> <!-- optional -->
+                            <formatJavadoc>false</formatJavadoc>
+                        </googleJavaFormat>
+
                         <removeUnusedImports>
                             <engine>google-java-format</engine>
                         </removeUnusedImports>
