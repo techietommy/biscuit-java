@@ -254,9 +254,9 @@ public final class SymbolTable implements Serializable {
 
   public String formatWorld(final World w) {
     final List<String> facts =
-        w.facts().stream().map((f) -> this.formatFact(f)).collect(Collectors.toList());
+        w.getFacts().stream().map((f) -> this.formatFact(f)).collect(Collectors.toList());
     final List<String> rules =
-        w.rules().stream().map((r) -> this.formatRule(r)).collect(Collectors.toList());
+        w.getRules().stream().map((r) -> this.formatRule(r)).collect(Collectors.toList());
 
     StringBuilder b = new StringBuilder();
     b.append("World {\n\tfacts: [\n\t\t");

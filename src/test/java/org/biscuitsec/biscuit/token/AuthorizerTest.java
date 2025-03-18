@@ -21,7 +21,7 @@ public class AuthorizerTest {
   @Test
   public void testAuthorizerPolicy() throws Parser {
     Authorizer authorizer = new Authorizer();
-    List<Policy> policies = authorizer.policies();
+    List<Policy> policies = authorizer.getPolicies();
     authorizer.deny();
     assertEquals(1, policies.size());
 

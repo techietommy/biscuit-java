@@ -162,7 +162,7 @@ public class UnverifiedBiscuit {
       throws Error {
     UnverifiedBiscuit copiedBiscuit = this.copy();
 
-    if (!copiedBiscuit.symbolTable.disjoint(block.symbols())) {
+    if (!copiedBiscuit.symbolTable.disjoint(block.getSymbolTable())) {
       throw new Error.SymbolTableOverlap();
     }
 
@@ -173,7 +173,7 @@ public class UnverifiedBiscuit {
     }
 
     SymbolTable symbols = new SymbolTable(copiedBiscuit.symbolTable);
-    for (String s : block.symbols().symbols()) {
+    for (String s : block.getSymbolTable().symbols()) {
       symbols.add(s);
     }
 
@@ -198,30 +198,30 @@ public class UnverifiedBiscuit {
         .collect(Collectors.toList());
   }
 
-  public List<List<Check>> checks() {
+  public List<List<Check>> getChecks() {
     ArrayList<List<Check>> l = new ArrayList<>();
-    l.add(new ArrayList<>(this.authority.checks()));
+    l.add(new ArrayList<>(this.authority.getChecks()));
 
     for (Block b : this.blocks) {
-      l.add(new ArrayList<>(b.checks()));
+      l.add(new ArrayList<>(b.getChecks()));
     }
 
     return l;
   }
 
-  public List<Option<String>> context() {
+  public List<Option<String>> getContext() {
     ArrayList<Option<String>> res = new ArrayList<>();
-    if (this.authority.context().isEmpty()) {
+    if (this.authority.getContext().isEmpty()) {
       res.add(Option.none());
     } else {
-      res.add(Option.some(this.authority.context()));
+      res.add(Option.some(this.authority.getContext()));
     }
 
     for (Block b : this.blocks) {
-      if (b.context().isEmpty()) {
+      if (b.getContext().isEmpty()) {
         res.add(Option.none());
       } else {
-        res.add(Option.some(b.context()));
+        res.add(Option.some(b.getContext()));
       }
     }
 

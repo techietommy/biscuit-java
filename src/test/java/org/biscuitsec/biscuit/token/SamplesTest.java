@@ -451,7 +451,7 @@ class SamplesTest {
 
     public World(Authorizer authorizer) {
       this.facts =
-          authorizer.facts().facts().entrySet().stream()
+          authorizer.getFacts().facts().entrySet().stream()
               .map(
                   entry -> {
                     ArrayList<Long> origin = new ArrayList<>(entry.getKey().blockIds());
@@ -459,7 +459,7 @@ class SamplesTest {
                     ArrayList<String> facts =
                         new ArrayList<>(
                             entry.getValue().stream()
-                                .map(f -> authorizer.symbols().formatFact(f))
+                                .map(f -> authorizer.getSymbolTable().formatFact(f))
                                 .collect(Collectors.toList()));
                     Collections.sort(facts);
 
@@ -468,12 +468,12 @@ class SamplesTest {
               .collect(Collectors.toList());
 
       HashMap<Long, List<String>> rules = new HashMap<>();
-      for (List<Tuple2<Long, Rule>> l : authorizer.rules().getRules().values()) {
+      for (List<Tuple2<Long, Rule>> l : authorizer.getRules().getRules().values()) {
         for (Tuple2<Long, Rule> t : l) {
           if (!rules.containsKey(t._1)) {
             rules.put(t._1, new ArrayList<>());
           }
-          rules.get(t._1).add(authorizer.symbols().formatRule(t._2));
+          rules.get(t._1).add(authorizer.getSymbolTable().formatRule(t._2));
         }
       }
       for (Map.Entry<Long, List<String>> entry : rules.entrySet()) {
@@ -488,7 +488,7 @@ class SamplesTest {
       this.rules = rulesets;
 
       this.checks =
-          authorizer.checks().stream()
+          authorizer.getChecks().stream()
               .map(
                   (Tuple2<Long, List<Check>> t) -> {
                     List<String> checks1 =
@@ -502,7 +502,7 @@ class SamplesTest {
                   })
               .collect(Collectors.toList());
       this.policies =
-          authorizer.policies().stream().map(p -> p.toString()).collect(Collectors.toList());
+          authorizer.getPolicies().stream().map(p -> p.toString()).collect(Collectors.toList());
       Collections.sort(this.rules);
       Collections.sort(this.checks);
     }

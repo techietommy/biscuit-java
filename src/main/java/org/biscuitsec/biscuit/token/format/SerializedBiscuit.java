@@ -423,12 +423,12 @@ public final class SerializedBiscuit {
       throw authRes.getLeft();
     }
     Block authority = authRes.get();
-    for (org.biscuitsec.biscuit.crypto.PublicKey pk : authority.publicKeys()) {
+    for (org.biscuitsec.biscuit.crypto.PublicKey pk : authority.getPublicKeys()) {
       symbolTable.insert(pk);
     }
     blockExternalKeys.add(Option.none());
 
-    for (String s : authority.symbols().symbols()) {
+    for (String s : authority.getSymbolTable().symbols()) {
       symbolTable.add(s);
     }
 
@@ -450,10 +450,10 @@ public final class SerializedBiscuit {
         blockExternalKeys.add(Option.some(bdata.getExternalSignature().get().getKey()));
       } else {
         blockExternalKeys.add(Option.none());
-        for (String s : block.symbols().symbols()) {
+        for (String s : block.getSymbolTable().symbols()) {
           symbolTable.add(s);
         }
-        for (org.biscuitsec.biscuit.crypto.PublicKey pk : block.publicKeys()) {
+        for (org.biscuitsec.biscuit.crypto.PublicKey pk : block.getPublicKeys()) {
           symbolTable.insert(pk);
         }
       }

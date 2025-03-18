@@ -113,7 +113,7 @@ public final class Biscuit extends UnverifiedBiscuit {
     KeyPair next = KeyPair.generate(root.getPublicKey().getAlgorithm(), rng);
 
     for (PublicKey pk : authority.getPublicKeys()) {
-      authority.symbols().insert(pk);
+      authority.getSymbolTable().insert(pk);
     }
 
     Either<Error.FormatError, SerializedBiscuit> container =
@@ -125,7 +125,7 @@ public final class Biscuit extends UnverifiedBiscuit {
       List<byte[]> revocationIds = s.revocationIdentifiers();
 
       Option<SerializedBiscuit> c = Option.some(s);
-      return new Biscuit(authority, blocks, authority.symbols(), s, revocationIds);
+      return new Biscuit(authority, blocks, authority.getSymbolTable(), s, revocationIds);
     }
   }
 
@@ -331,7 +331,7 @@ public final class Biscuit extends UnverifiedBiscuit {
       throws Error {
     Biscuit copiedBiscuit = this.copy();
 
-    if (!copiedBiscuit.symbolTable.disjoint(block.symbols())) {
+    if (!copiedBiscuit.symbolTable.disjoint(block.getSymbolTable())) {
       throw new Error.SymbolTableOverlap();
     }
 
@@ -342,7 +342,7 @@ public final class Biscuit extends UnverifiedBiscuit {
     }
 
     SymbolTable symbolTable = new SymbolTable(copiedBiscuit.symbolTable);
-    for (String s : block.symbols().symbols()) {
+    for (String s : block.getSymbolTable().symbols()) {
       symbolTable.add(s);
     }
 
@@ -384,7 +384,7 @@ public final class Biscuit extends UnverifiedBiscuit {
     for (Block b : this.blocks) {
       s.append("\t\t");
       if (b.getExternalKey().isDefined()) {
-        s.append(b.print(b.symbols()));
+        s.append(b.print(b.getSymbolTable()));
       } else {
         s.append(b.print(this.symbolTable));
       }

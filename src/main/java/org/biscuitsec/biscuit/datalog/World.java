@@ -82,11 +82,11 @@ public final class World implements Serializable {
     }
   }
 
-  public FactSet facts() {
+  public FactSet getFacts() {
     return this.facts;
   }
 
-  public RuleSet rules() {
+  public RuleSet getRules() {
     return this.rules;
   }
 

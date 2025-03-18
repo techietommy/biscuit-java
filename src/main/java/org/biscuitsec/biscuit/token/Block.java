@@ -80,12 +80,8 @@ public final class Block {
     this.externalKey = externalKey;
   }
 
-  public SymbolTable symbols() {
-    return symbolTable;
-  }
-
-  public List<PublicKey> publicKeys() {
-    return publicKeys;
+  public SymbolTable getSymbolTable() {
+    return this.symbolTable;
   }
 
   public void setExternalKey(PublicKey externalKey) {
@@ -112,7 +108,7 @@ public final class Block {
     }
     s.append("Block");
     s.append(" {\n\t\tsymbols: ");
-    s.append(this.symbols().symbols());
+    s.append(this.getSymbolTable().symbols());
     s.append("\n\t\tsymbol public keys: ");
     s.append(this.symbolTable.getPublicKeys());
     s.append("\n\t\tblock public keys: ");
@@ -197,8 +193,8 @@ public final class Block {
   public Schema.Block serialize() {
     Schema.Block.Builder b = Schema.Block.newBuilder();
 
-    for (int i = 0; i < this.symbols().symbols().size(); i++) {
-      b.addSymbols(this.symbols().symbols().get(i));
+    for (int i = 0; i < this.getSymbolTable().symbols().size(); i++) {
+      b.addSymbols(this.getSymbolTable().symbols().get(i));
     }
 
     if (!this.context.isEmpty()) {
@@ -473,28 +469,29 @@ public final class Block {
         + '}';
   }
 
-  public String context() {
-    return context;
+  public String getContext() {
+    return this.context;
   }
 
-  public List<Fact> facts() {
+  public List<Fact> getFacts() {
     return Collections.unmodifiableList(facts);
   }
 
-  public List<Rule> rules() {
+  public List<Rule> getRules() {
     return Collections.unmodifiableList(rules);
   }
 
-  public List<Check> checks() {
+  public List<Check> getChecks() {
     return Collections.unmodifiableList(checks);
   }
 
-  public List<Scope> scopes() {
-    return Collections.unmodifiableList(scopes);
-  }
 
   public List<PublicKey> getPublicKeys() {
-    return publicKeys;
+    return Collections.unmodifiableList(this.publicKeys);
+  }
+
+  public List<Scope> getScopes() {
+    return Collections.unmodifiableList(scopes);
   }
 
   public Option<PublicKey> getExternalKey() {

@@ -67,7 +67,7 @@ public class WorldTest {
         "current facts: ["
             + String.join(
                 ", ",
-                w.facts().stream().map((f) -> syms.formatFact(f)).collect(Collectors.toList()))
+                w.getFacts().stream().map((f) -> syms.formatFact(f)).collect(Collectors.toList()))
             + "]");
 
     final Rule r2 =
