@@ -289,8 +289,8 @@ public final class SymbolTable implements Serializable {
     this.publicKeys = new ArrayList<>();
   }
 
-  public SymbolTable(SymbolTable source, List<PublicKey> publicKeys) {
-    this(source.symbols, publicKeys);
+  public SymbolTable(SymbolTable sourceSymbolTable, List<PublicKey> publicKeys) {
+    this(sourceSymbolTable.symbols, publicKeys);
   }
 
   public SymbolTable(List<String> symbols, List<PublicKey> publicKeys) {
