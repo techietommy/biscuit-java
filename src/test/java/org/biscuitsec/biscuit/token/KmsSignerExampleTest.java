@@ -65,7 +65,7 @@ public class KmsSignerExampleTest {
     var x509EncodedPublicKey = getPublicKeyResponse.publicKey().asByteArray();
     var sec1CompressedEncodedPublicKey =
         convertDerEncodedX509PublicKeyToSec1CompressedEncodedPublicKey(x509EncodedPublicKey);
-    var publicKey = new PublicKey(Algorithm.SECP256R1, sec1CompressedEncodedPublicKey);
+    var publicKey = PublicKey.load(Algorithm.SECP256R1, sec1CompressedEncodedPublicKey);
     var signer =
         new Signer() {
           @Override

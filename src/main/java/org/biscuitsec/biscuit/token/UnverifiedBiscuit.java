@@ -87,8 +87,8 @@ public class UnverifiedBiscuit {
    *
    * @return UnverifiedBiscuit
    */
-  private static UnverifiedBiscuit fromSerializedBiscuit(SerializedBiscuit ser, SymbolTable symbolTable)
-      throws Error {
+  private static UnverifiedBiscuit fromSerializedBiscuit(
+      SerializedBiscuit ser, SymbolTable symbolTable) throws Error {
     Tuple2<Block, ArrayList<Block>> t = ser.extractBlocks(symbolTable);
     Block authority = t._1;
     ArrayList<Block> blocks = t._2;
@@ -265,7 +265,7 @@ public class UnverifiedBiscuit {
     KeyPair nextKeyPair = KeyPair.generate(previousKey.getAlgorithm());
     byte[] payload =
         BlockSignatureBuffer.getBufferSignature(previousKey, blockResponse.getPayload());
-    if (!KeyPair.verify(externalKey, payload, blockResponse.getSignature())) {
+    if (!externalKey.verify(payload, blockResponse.getSignature())) {
       throw new Error.FormatError.Signature.InvalidSignature(
           "signature error: Verification equation was not satisfied");
     }

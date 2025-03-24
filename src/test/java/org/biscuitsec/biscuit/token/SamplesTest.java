@@ -49,7 +49,8 @@ class SamplesTest {
     Gson gson = new Gson();
     Sample sample =
         gson.fromJson(new InputStreamReader(new BufferedInputStream(inputStream)), Sample.class);
-    PublicKey publicKey = new PublicKey(Schema.PublicKey.Algorithm.Ed25519, sample.root_public_key);
+    PublicKey publicKey =
+        PublicKey.load(Schema.PublicKey.Algorithm.Ed25519, sample.root_public_key);
     KeyPair keyPair = KeyPair.generate(Schema.PublicKey.Algorithm.Ed25519, sample.root_private_key);
     return sample.testcases.stream().map(t -> processTestcase(t, publicKey, keyPair));
   }
@@ -173,8 +174,7 @@ class SamplesTest {
                           System.out.println(
                               Arrays.toString(token.serializedBiscuit.getAuthority().getBlock()));
                           org.biscuitsec.biscuit.token.Block deserBlockAuthority =
-                              fromBytes(serBlockAuthority, token.authority.getExternalKey())
-                                  .get();
+                              fromBytes(serBlockAuthority, token.authority.getExternalKey()).get();
                           assertEquals(
                               token.authority.print(token.symbolTable),
                               deserBlockAuthority.print(token.symbolTable));
@@ -189,7 +189,8 @@ class SamplesTest {
                             org.biscuitsec.biscuit.token.Block deserBlock =
                                 fromBytes(serBlock, block.getExternalKey()).get();
                             assertEquals(
-                                block.print(token.symbolTable), deserBlock.print(token.symbolTable));
+                                block.print(token.symbolTable),
+                                deserBlock.print(token.symbolTable));
                             assert (Arrays.equals(serBlock, signedBlock.getBlock()));
                           }
 
@@ -300,8 +301,10 @@ class SamplesTest {
   class Block {
     List<String> symbols;
     String code;
+
     @SuppressWarnings("checkstyle:MemberName")
     List<String> public_keys;
+
     @SuppressWarnings("checkstyle:MemberName")
     String external_key;
 
@@ -414,6 +417,7 @@ class SamplesTest {
 
     @SuppressWarnings("checkstyle:MemberName")
     String root_public_key;
+
     List<TestCase> testcases;
 
     @SuppressWarnings("checkstyle:MethodName")

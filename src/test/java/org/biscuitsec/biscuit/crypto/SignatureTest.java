@@ -9,9 +9,11 @@ import biscuit.format.schema.Schema;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.security.Security;
 import java.security.SignatureException;
 import org.biscuitsec.biscuit.error.Error;
 import org.biscuitsec.biscuit.token.Biscuit;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -19,12 +21,22 @@ import org.junit.jupiter.api.Test;
  */
 public class SignatureTest {
 
+  static {
+    Security.addProvider(new BouncyCastleProvider());
+  }
+
   @Test
   public void testSerialize() {
     prTestSerialize(Schema.PublicKey.Algorithm.Ed25519, 32);
     prTestSerialize(
         // compressed - 0x02 or 0x03 prefix byte, 32 bytes for X coordinate
         Schema.PublicKey.Algorithm.SECP256R1, 33);
+  }
+
+  @Test
+  public void testHex() {
+    prGenSigKeys(Schema.PublicKey.Algorithm.SECP256R1);
+    prGenSigKeys(Schema.PublicKey.Algorithm.Ed25519);
   }
 
   @Test
@@ -59,7 +71,7 @@ public class SignatureTest {
     byte[] serializedPublicKey = pubkey.toBytes();
 
     final KeyPair deserializedSecretKey = KeyPair.generate(algorithm, serializedSecretKey);
-    final PublicKey deserializedPublicKey = new PublicKey(algorithm, serializedPublicKey);
+    final PublicKey deserializedPublicKey = PublicKey.load(algorithm, serializedPublicKey);
 
     assertEquals(32, serializedSecretKey.length);
     assertEquals(expectedPublicKeyLength, serializedPublicKey.length);
@@ -98,5 +110,21 @@ public class SignatureTest {
     KeyPair keypair4 = KeyPair.generate(algorithm, rng);
     Token token3 = token2.append(keypair4, message3.getBytes());
     assertEquals(Right(null), token3.verify(root.getPublicKey()));
+  }
+
+  private static void prGenSigKeys(Schema.PublicKey.Algorithm algorithm) {
+    var keypair = KeyPair.generate(algorithm);
+    var pubKey = keypair.getPublicKey();
+    var privHexString = keypair.toHex();
+    var pubKeyString = pubKey.toHex();
+    System.out.println(algorithm + " Keypair hex " + privHexString);
+    System.out.println(algorithm + " pubKey hex " + pubKeyString);
+    var pubKey2 = PublicKey.load(algorithm, pubKeyString);
+    var keyPair2 = KeyPair.generate(algorithm, privHexString);
+    System.out.println(algorithm + " Keypair2 hex " + keyPair2.toHex());
+    System.out.println(algorithm + " pubKey hex " + pubKey2.toHex());
+    assertEquals(keypair.toHex(), keyPair2.toHex(), "keypair hex");
+    assertEquals(pubKey.toHex(), pubKey2.toHex(), "public keys hex equals");
+    assertEquals(pubKey, pubKey2, "public keys equals");
   }
 }

@@ -1,6 +1,5 @@
 package org.biscuitsec.biscuit.crypto;
 
-import biscuit.format.schema.Schema;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -27,14 +26,12 @@ final class SECP256R1KeyPair extends KeyPair {
   private final BCECPrivateKey privateKey;
   private final BCECPublicKey publicKey;
 
-  private static final String ALGORITHM = "ECDSA";
-  private static final String CURVE = "secp256r1";
-  private static final ECNamedCurveParameterSpec SECP256R1 =
-      ECNamedCurveTable.getParameterSpec(CURVE);
-
   static {
     Security.addProvider(new BouncyCastleProvider());
   }
+  static final String ALGORITHM = "ECDSA";
+  static final String CURVE = "secp256r1";
+  static final ECNamedCurveParameterSpec SECP256R1 = ECNamedCurveTable.getParameterSpec(CURVE);
 
   SECP256R1KeyPair(byte[] bytes) {
     var privateKeySpec = new ECPrivateKeySpec(BigIntegers.fromUnsignedByteArray(bytes), SECP256R1);
@@ -65,24 +62,14 @@ final class SECP256R1KeyPair extends KeyPair {
     this.publicKey = publicKey;
   }
 
-  SECP256R1KeyPair(String hex) {
-    this(Utils.hexStringToByteArray(hex));
-  }
-
-  public static java.security.PublicKey decode(byte[] data) {
-    var params = ECNamedCurveTable.getParameterSpec(CURVE);
-    var spec = new ECPublicKeySpec(params.getCurve().decodePoint(data), params);
-    return new BCECPublicKey(ALGORITHM, spec, BouncyCastleProvider.CONFIGURATION);
-  }
-
-  public static Signature getSignature() throws NoSuchAlgorithmException {
+  static Signature getSignature() throws NoSuchAlgorithmException {
     return Signature.getInstance("SHA256withECDSA", new BouncyCastleProvider());
   }
 
   @Override
   public byte[] sign(byte[] data)
       throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
-    Signature sgr = KeyPair.generateSignature(Schema.PublicKey.Algorithm.SECP256R1);
+    Signature sgr = getSignature();
     sgr.initSign(privateKey);
     sgr.update(data);
     return sgr.sign();
@@ -100,6 +87,6 @@ final class SECP256R1KeyPair extends KeyPair {
 
   @Override
   public PublicKey getPublicKey() {
-    return new PublicKey(Schema.PublicKey.Algorithm.SECP256R1, publicKey);
+    return new SECP256R1PublicKey(this.publicKey);
   }
 }

@@ -274,7 +274,8 @@ public final class Authorizer {
 
   public Authorizer setTime() throws Error.Language {
     world.addFact(
-        Origin.authorizer(), Utils.fact("time", List.of(Utils.date(new Date()))).convert(symbolTable));
+        Origin.authorizer(),
+        Utils.fact("time", List.of(Utils.date(new Date()))).convert(symbolTable));
     return this;
   }
 
@@ -649,7 +650,12 @@ public final class Authorizer {
 
         for (int j = 0; j < b.getChecks().size(); j++) {
           checks.add(
-              "Block[" + (i + 1) + "][" + j + "]: " + blockSymbolTable.formatCheck(b.getChecks().get(j)));
+              "Block["
+                  + (i + 1)
+                  + "]["
+                  + j
+                  + "]: "
+                  + blockSymbolTable.formatCheck(b.getChecks().get(j)));
         }
       }
     }
@@ -691,7 +697,8 @@ public final class Authorizer {
       List<Check> blockChecks = new ArrayList<>();
 
       if (block.getExternalKey().isDefined()) {
-        SymbolTable blockSymbolTable = new SymbolTable(block.getSymbolTable(), block.getPublicKeys());
+        SymbolTable blockSymbolTable =
+            new SymbolTable(block.getSymbolTable(), block.getPublicKeys());
         for (org.biscuitsec.biscuit.datalog.Check check : block.getChecks()) {
           blockChecks.add(Check.convertFrom(check, blockSymbolTable));
         }

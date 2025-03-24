@@ -15,7 +15,6 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.security.Signature;
 import java.security.SignatureException;
 import java.util.ArrayList;
 import java.util.List;
@@ -157,7 +156,7 @@ public final class SerializedBiscuit {
               external));
     }
 
-    if (!(data.getProof().hasNextSecret() ^ data.getProof().hasFinalSignature())) {
+    if (data.getProof().hasNextSecret() == data.getProof().hasFinalSignature()) {
       throw new Error.FormatError.DeserializationError("empty proof");
     }
 
@@ -356,7 +355,7 @@ public final class SerializedBiscuit {
 
       byte[] payload = BlockSignatureBuffer.getBufferSealedSignature(nextKey, block, signature);
 
-      if (KeyPair.verify(currentKey, payload, finalSignature)) {
+      if (currentKey.verify(payload, finalSignature)) {
         return Right(null);
       } else {
         return Left(new Error.FormatError.Signature.SealedSignature());
@@ -382,18 +381,10 @@ public final class SerializedBiscuit {
     algoBuf.flip();
 
     byte[] block = signedBlock.getBlock();
-    Signature sgr = KeyPair.generateSignature(publicKey.getAlgorithm());
-    sgr.initVerify(publicKey.getKey());
-    sgr.update(block);
-    if (signedBlock.getExternalSignature().isDefined()) {
-      sgr.update(signedBlock.getExternalSignature().get().getSignature());
-    }
-    sgr.update(algoBuf);
-    sgr.update(nextKey.toBytes());
     byte[] payload =
         BlockSignatureBuffer.getBufferSignature(
             nextKey, block, signedBlock.getExternalSignature().toJavaOptional());
-    if (!KeyPair.verify(publicKey, payload, signature)) {
+    if (!publicKey.verify(payload, signature)) {
       return Left(
           new Error.FormatError.Signature.InvalidSignature(
               "signature error: Verification equation was not satisfied"));
@@ -403,8 +394,7 @@ public final class SerializedBiscuit {
       byte[] externalPayload = BlockSignatureBuffer.getBufferSignature(publicKey, block);
       ExternalSignature externalSignature = signedBlock.getExternalSignature().get();
 
-      if (!KeyPair.verify(
-          externalSignature.getKey(), externalPayload, externalSignature.getSignature())) {
+      if (!externalSignature.getKey().verify(externalPayload, externalSignature.getSignature())) {
         return Left(
             new Error.FormatError.Signature.InvalidSignature(
                 "external signature error: Verification equation was not satisfied"));
@@ -477,7 +467,7 @@ public final class SerializedBiscuit {
       block = this.blocks.get(this.blocks.size() - 1);
     }
 
-    KeyPair secretKey = ((Proof.NextSecret) this.proof).secretKey();
+    KeyPair secretKey = this.proof.secretKey();
     byte[] payload =
         BlockSignatureBuffer.getBufferSealedSignature(
             block.getKey(), block.getBlock(), block.getSignature());
@@ -521,7 +511,7 @@ public final class SerializedBiscuit {
     return blocks;
   }
 
-  public Proof getProof() {
+  Proof getProof() {
     return proof;
   }
 

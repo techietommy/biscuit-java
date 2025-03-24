@@ -241,7 +241,8 @@ public final class Biscuit extends UnverifiedBiscuit {
    * @param data
    * @return
    */
-  public static Biscuit fromBytesWithSymbols(byte[] data, KeyDelegate delegate, SymbolTable symbolTable)
+  public static Biscuit fromBytesWithSymbols(
+      byte[] data, KeyDelegate delegate, SymbolTable symbolTable)
       throws NoSuchAlgorithmException, SignatureException, InvalidKeyException, Error {
     // System.out.println("will deserialize and verify token");
     SerializedBiscuit ser = SerializedBiscuit.fromBytes(data, delegate);
@@ -255,7 +256,8 @@ public final class Biscuit extends UnverifiedBiscuit {
    *
    * @return
    */
-  static Biscuit fromSerializedBiscuit(SerializedBiscuit ser, SymbolTable symbolTable) throws Error {
+  static Biscuit fromSerializedBiscuit(SerializedBiscuit ser, SymbolTable symbolTable)
+      throws Error {
     Tuple2<Block, ArrayList<Block>> t = ser.extractBlocks(symbolTable);
     Block authority = t._1;
     ArrayList<Block> blocks = t._2;

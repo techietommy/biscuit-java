@@ -64,7 +64,7 @@ class Token {
       byte[] signature = this.signatures.get(i);
 
       byte[] payload = BlockSignatureBuffer.getBufferSignature(nextKey, block);
-      if (KeyPair.verify(currentKey, payload, signature)) {
+      if (currentKey.verify(payload, signature)) {
         currentKey = nextKey;
       } else {
         return Left(

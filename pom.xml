@@ -35,13 +35,13 @@
         <vavr.version>0.10.3</vavr.version>
         <re2j.version>1.6</re2j.version>
         <gson.version>2.8.9</gson.version>
-        <bcprov.version>1.79</bcprov.version>
+        <bcprov.version>1.80</bcprov.version>
 
         <!-- test dependencies -->
         <junit.version>5.8.2</junit.version>
         <awssdk-kms.version>2.30.2</awssdk-kms.version>
-        <testcontainers-junit-jupiter.version>1.20.4</testcontainers-junit-jupiter.version>
-        <testcontainers-localstack.version>1.20.4</testcontainers-localstack.version>
+        <testcontainers-junit-jupiter.version>1.20.6</testcontainers-junit-jupiter.version>
+        <testcontainers-localstack.version>1.20.6</testcontainers-localstack.version>
     </properties>
 
     <licenses>
@@ -221,7 +221,7 @@
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <version>2.22.2</version>
             </plugin>
-             <plugin>
+            <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.2.5</version>
                 <dependencies>
@@ -237,7 +237,7 @@
                         <disable>true</disable>
                     </consoleOutputReporter>
                     <statelessTestsetInfoReporter
-                        implementation="org.apache.maven.plugin.surefire.extensions.junit5.JUnit5StatelessTestsetInfoTreeReporter">
+                            implementation="org.apache.maven.plugin.surefire.extensions.junit5.JUnit5StatelessTestsetInfoTreeReporter">
                         <printStacktraceOnError>true</printStacktraceOnError>
                         <printStacktraceOnFailure>true</printStacktraceOnFailure>
                         <printStdoutOnError>true</printStdoutOnError>
@@ -280,11 +280,6 @@
             <groupId>com.google.protobuf</groupId>
             <artifactId>protobuf-java</artifactId>
             <version>${protobuf.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>net.i2p.crypto</groupId>
-            <artifactId>eddsa</artifactId>
-            <version>${net.i2p.crypto.eddsa.version}</version>
         </dependency>
         <dependency>
             <groupId>io.vavr</groupId>
