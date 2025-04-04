@@ -205,13 +205,22 @@ public final class Authorizer {
   }
 
   public Either<Map<Integer, List<Error>>, Authorizer> addDatalog(String s) {
-    Either<Map<Integer, List<org.biscuitsec.biscuit.token.builder.parser.Error>>, Tuple5<List<org.biscuitsec.biscuit.token.builder.Fact>, List<org.biscuitsec.biscuit.token.builder.Rule>, List<org.biscuitsec.biscuit.token.builder.Check>, List<org.biscuitsec.biscuit.token.builder.Scope>, List<Policy>>> result = Parser
-        .datalogComponents(s);
+    Either<
+            Map<Integer, List<org.biscuitsec.biscuit.token.builder.parser.Error>>,
+            Tuple5<
+                List<org.biscuitsec.biscuit.token.builder.Fact>,
+                List<org.biscuitsec.biscuit.token.builder.Rule>,
+                List<org.biscuitsec.biscuit.token.builder.Check>,
+                List<org.biscuitsec.biscuit.token.builder.Scope>,
+                List<Policy>>>
+        result = Parser.datalogComponents(s);
 
     if (result.isLeft()) {
-      Map<Integer, List<org.biscuitsec.biscuit.token.builder.parser.Error>> errors = result.getLeft();
+      Map<Integer, List<org.biscuitsec.biscuit.token.builder.parser.Error>> errors =
+          result.getLeft();
       Map<Integer, List<Error>> errorMap = new HashMap<>();
-      for (Map.Entry<Integer, List<org.biscuitsec.biscuit.token.builder.parser.Error>> entry : errors.entrySet()) {
+      for (Map.Entry<Integer, List<org.biscuitsec.biscuit.token.builder.parser.Error>> entry :
+          errors.entrySet()) {
         List<Error> errorsList = new ArrayList<>();
         for (org.biscuitsec.biscuit.token.builder.parser.Error error : entry.getValue()) {
           errorsList.add(new Error.Parser(error));
@@ -221,8 +230,13 @@ public final class Authorizer {
       return Either.left(errorMap);
     }
 
-    Tuple5<List<org.biscuitsec.biscuit.token.builder.Fact>, List<org.biscuitsec.biscuit.token.builder.Rule>, List<org.biscuitsec.biscuit.token.builder.Check>, List<org.biscuitsec.biscuit.token.builder.Scope>, List<Policy>> components = result
-        .get();
+    Tuple5<
+            List<org.biscuitsec.biscuit.token.builder.Fact>,
+            List<org.biscuitsec.biscuit.token.builder.Rule>,
+            List<org.biscuitsec.biscuit.token.builder.Check>,
+            List<org.biscuitsec.biscuit.token.builder.Scope>,
+            List<Policy>>
+        components = result.get();
     components._1.forEach(this::addFact);
     components._2.forEach(this::addRule);
     components._3.forEach(this::addCheck);
@@ -308,7 +322,8 @@ public final class Authorizer {
 
   public Authorizer setTime() throws Error.Language {
     world.addFact(
-        Origin.authorizer(), Utils.fact("time", List.of(Utils.date(new Date()))).convert(symbolTable));
+        Origin.authorizer(),
+        Utils.fact("time", List.of(Utils.date(new Date()))).convert(symbolTable));
     return this;
   }
 
@@ -683,7 +698,12 @@ public final class Authorizer {
 
         for (int j = 0; j < b.getChecks().size(); j++) {
           checks.add(
-              "Block[" + (i + 1) + "][" + j + "]: " + blockSymbolTable.formatCheck(b.getChecks().get(j)));
+              "Block["
+                  + (i + 1)
+                  + "]["
+                  + j
+                  + "]: "
+                  + blockSymbolTable.formatCheck(b.getChecks().get(j)));
         }
       }
     }
@@ -725,7 +745,8 @@ public final class Authorizer {
       List<Check> blockChecks = new ArrayList<>();
 
       if (block.getExternalKey().isDefined()) {
-        SymbolTable blockSymbolTable = new SymbolTable(block.getSymbolTable(), block.getPublicKeys());
+        SymbolTable blockSymbolTable =
+            new SymbolTable(block.getSymbolTable(), block.getPublicKeys());
         for (org.biscuitsec.biscuit.datalog.Check check : block.getChecks()) {
           blockChecks.add(Check.convertFrom(check, blockSymbolTable));
         }

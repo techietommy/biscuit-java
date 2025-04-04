@@ -9,7 +9,8 @@ import org.biscuitsec.biscuit.datalog.SymbolTable;
 
 public abstract class Expression {
 
-  public final org.biscuitsec.biscuit.datalog.expressions.Expression convert(SymbolTable symbolTable) {
+  public final org.biscuitsec.biscuit.datalog.expressions.Expression convert(
+      SymbolTable symbolTable) {
     ArrayList<org.biscuitsec.biscuit.datalog.expressions.Op> ops = new ArrayList<>();
     this.toOpcodes(symbolTable, ops);
 
@@ -162,8 +163,9 @@ public abstract class Expression {
     }
 
     public void toOpcodes(
-            SymbolTable symbolTable, List<org.biscuitsec.biscuit.datalog.expressions.Op> ops) {
-      ops.add(new org.biscuitsec.biscuit.datalog.expressions.Op.Value(this.value.convert(symbolTable)));
+        SymbolTable symbolTable, List<org.biscuitsec.biscuit.datalog.expressions.Op> ops) {
+      ops.add(
+          new org.biscuitsec.biscuit.datalog.expressions.Op.Value(this.value.convert(symbolTable)));
     }
 
     public void gatherVariables(Set<String> variables) {
@@ -207,7 +209,7 @@ public abstract class Expression {
     }
 
     public void toOpcodes(
-            SymbolTable symbolTable, List<org.biscuitsec.biscuit.datalog.expressions.Op> ops) {
+        SymbolTable symbolTable, List<org.biscuitsec.biscuit.datalog.expressions.Op> ops) {
       this.arg1.toOpcodes(symbolTable, ops);
 
       switch (this.op) {
@@ -286,7 +288,7 @@ public abstract class Expression {
     }
 
     public void toOpcodes(
-            SymbolTable symbolTable, List<org.biscuitsec.biscuit.datalog.expressions.Op> ops) {
+        SymbolTable symbolTable, List<org.biscuitsec.biscuit.datalog.expressions.Op> ops) {
       this.arg1.toOpcodes(symbolTable, ops);
       this.arg2.toOpcodes(symbolTable, ops);
 

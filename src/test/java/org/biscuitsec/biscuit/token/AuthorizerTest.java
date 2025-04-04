@@ -1,7 +1,6 @@
 package org.biscuitsec.biscuit.token;
 
 import static org.biscuitsec.biscuit.token.builder.Utils.constrainedRule;
-import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -79,16 +78,18 @@ public class AuthorizerTest {
   public void testDatalogAuthorizer() throws Exception {
     KeyPair keypair = KeyPair.generate(Schema.PublicKey.Algorithm.Ed25519, new SecureRandom());
 
-    Biscuit token = Biscuit.builder(keypair)
-        .addAuthorityFact("email(\"bob@example.com\")")
-        .addAuthorityFact("id(123)")
-        .addAuthorityFact("enabled(true)")
-        .addAuthorityFact("perms([1,2,3])")
-        .build();
+    Biscuit token =
+        Biscuit.builder(keypair)
+            .addAuthorityFact("email(\"bob@example.com\")")
+            .addAuthorityFact("id(123)")
+            .addAuthorityFact("enabled(true)")
+            .addAuthorityFact("perms([1,2,3])")
+            .build();
 
-    Authorizer authorizer = Biscuit.fromBase64Url(token.serializeBase64Url(), keypair.getPublicKey())
-        .verify(keypair.getPublicKey())
-        .authorizer();
+    Authorizer authorizer =
+        Biscuit.fromBase64Url(token.serializeBase64Url(), keypair.getPublicKey())
+            .verify(keypair.getPublicKey())
+            .authorizer();
 
     String l0 = "right($email) <- email($email)";
     String l1 = "check if right(\"bob@example.com\")";

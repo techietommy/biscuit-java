@@ -2,8 +2,8 @@ package org.biscuitsec.biscuit.token.builder.parser;
 
 import biscuit.format.schema.Schema;
 import io.vavr.Tuple2;
-import io.vavr.Tuple5;
 import io.vavr.Tuple4;
+import io.vavr.Tuple5;
 import io.vavr.collection.Stream;
 import io.vavr.control.Either;
 import java.time.OffsetDateTime;
@@ -39,8 +39,10 @@ public final class Parser {
    * @return Either<Map<Integer, List<Error>>, Tuple5<List<Fact>, List<Rule>,
    *         List<Check>, List<Scope>, List<Policy>>>
    */
-  public static Either<Map<Integer, List<Error>>, Tuple5<List<Fact>, List<Rule>, List<Check>, List<Scope>, List<Policy>>> datalogComponents(
-      String s) {
+  public static Either<
+          Map<Integer, List<Error>>,
+          Tuple5<List<Fact>, List<Rule>, List<Check>, List<Scope>, List<Policy>>>
+      datalogComponents(String s) {
     List<Fact> facts = new ArrayList<>();
     List<Rule> rules = new ArrayList<>();
     List<Check> checks = new ArrayList<>();
@@ -66,67 +68,72 @@ public final class Parser {
                 List<Error> lineErrors = new ArrayList<>();
 
                 boolean parsed = false;
-                parsed = rule(code)
-                    .fold(
-                        e -> {
-                          lineErrors.add(e);
-                          return false;
-                        },
-                        r -> {
-                          rules.add(r._2);
-                          return true;
-                        });
+                parsed =
+                    rule(code)
+                        .fold(
+                            e -> {
+                              lineErrors.add(e);
+                              return false;
+                            },
+                            r -> {
+                              rules.add(r._2);
+                              return true;
+                            });
 
                 if (!parsed) {
-                  parsed = fact(code)
-                      .fold(
-                          e -> {
-                            lineErrors.add(e);
-                            return false;
-                          },
-                          r -> {
-                            facts.add(r._2);
-                            return true;
-                          });
+                  parsed =
+                      fact(code)
+                          .fold(
+                              e -> {
+                                lineErrors.add(e);
+                                return false;
+                              },
+                              r -> {
+                                facts.add(r._2);
+                                return true;
+                              });
                 }
 
                 if (!parsed) {
-                  parsed = check(code)
-                      .fold(
-                          e -> {
-                            lineErrors.add(e);
-                            return false;
-                          },
-                          r -> {
-                            checks.add(r._2);
-                            return true;
-                          });
+                  parsed =
+                      check(code)
+                          .fold(
+                              e -> {
+                                lineErrors.add(e);
+                                return false;
+                              },
+                              r -> {
+                                checks.add(r._2);
+                                return true;
+                              });
                 }
 
                 if (!parsed) {
-                  parsed = scope(code)
-                      .fold(
-                          e -> {
-                            lineErrors.add(e);
-                            return false;
-                          },
-                          r -> {
-                            scopes.add(r._2);
-                            return true;
-                          });
+                  parsed =
+                      scope(code)
+                          .fold(
+                              e -> {
+                                lineErrors.add(e);
+                                return false;
+                              },
+                              r -> {
+                                scopes.add(r._2);
+                                return true;
+                              });
                 }
 
                 if (!parsed) {
-                  parsed = policy(code)
-                      .fold(
-                          e -> {
-                            lineErrors.add(e);
-                            return false;
-                          },
-                          r -> {
-                            policies.add(r._2);
-                            return true;
-                          });
+                  parsed =
+                      policy(code)
+                          .fold(
+                              e -> {
+                                lineErrors.add(e);
+                                return false;
+                              },
+                              r -> {
+                                policies.add(r._2);
+                                return true;
+                              });
                 }
 
                 if (!parsed) {
@@ -160,14 +167,17 @@ public final class Parser {
   public static Either<Map<Integer, List<Error>>, Block> datalog(long index, String s) {
     Block blockBuilder = new Block();
 
-    Either<Map<Integer, List<Error>>, Tuple5<List<Fact>, List<Rule>, List<Check>, List<Scope>, List<Policy>>> result = datalogComponents(
-        s);
+    Either<
+            Map<Integer, List<Error>>,
+            Tuple5<List<Fact>, List<Rule>, List<Check>, List<Scope>, List<Policy>>>
+        result = datalogComponents(s);
 
     if (result.isLeft()) {
       return Either.left(result.getLeft());
     }
 
-    Tuple5<List<Fact>, List<Rule>, List<Check>, List<Scope>, List<Policy>> components = result.get();
+    Tuple5<List<Fact>, List<Rule>, List<Check>, List<Scope>, List<Policy>> components =
+        result.get();
 
     components._1.forEach(blockBuilder::addFact);
     components._2.forEach(blockBuilder::addRule);

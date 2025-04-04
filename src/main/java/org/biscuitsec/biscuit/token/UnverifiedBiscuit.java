@@ -87,8 +87,8 @@ public class UnverifiedBiscuit {
    *
    * @return UnverifiedBiscuit
    */
-  private static UnverifiedBiscuit fromSerializedBiscuit(SerializedBiscuit ser, SymbolTable symbolTable)
-      throws Error {
+  private static UnverifiedBiscuit fromSerializedBiscuit(
+      SerializedBiscuit ser, SymbolTable symbolTable) throws Error {
     Tuple2<Block, ArrayList<Block>> t = ser.extractBlocks(symbolTable);
     Block authority = t._1;
     ArrayList<Block> blocks = t._2;
