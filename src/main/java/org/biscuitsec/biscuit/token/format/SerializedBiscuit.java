@@ -156,8 +156,14 @@ public final class SerializedBiscuit {
               external));
     }
 
-    if (data.getProof().hasNextSecret() == data.getProof().hasFinalSignature()) {
+    // One flags between hasNextSecret() and hasFinalSignature() needs to be set
+    if (!data.getProof().hasNextSecret() && !data.getProof().hasFinalSignature()) {
       throw new Error.FormatError.DeserializationError("empty proof");
+    }
+
+    // Both flags can’t be set at the same time
+    if (data.getProof().hasNextSecret() && data.getProof().hasFinalSignature()) {
+      throw new Error.FormatError.DeserializationError("invalid proof");
     }
 
     final Proof proof =
