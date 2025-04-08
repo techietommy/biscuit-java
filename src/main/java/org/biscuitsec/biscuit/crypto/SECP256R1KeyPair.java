@@ -29,6 +29,7 @@ final class SECP256R1KeyPair extends KeyPair {
   static {
     Security.addProvider(new BouncyCastleProvider());
   }
+
   static final String ALGORITHM = "ECDSA";
   static final String CURVE = "secp256r1";
   static final ECNamedCurveParameterSpec SECP256R1 = ECNamedCurveTable.getParameterSpec(CURVE);
