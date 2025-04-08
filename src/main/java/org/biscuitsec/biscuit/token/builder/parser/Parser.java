@@ -179,6 +179,16 @@ public final class Parser {
     Tuple5<List<Fact>, List<Rule>, List<Check>, List<Scope>, List<Policy>> components =
         result.get();
 
+    if (!components._5.isEmpty()) {
+      return Either.left(
+          Map.of(
+              -1, // we don't have a line number for policies
+              List.of(
+                  new Error(
+                      s,
+                      "Policies must be empty but found " + components._5.size() + " policies"))));
+    }
+
     components._1.forEach(blockBuilder::addFact);
     components._2.forEach(blockBuilder::addRule);
     components._3.forEach(blockBuilder::addCheck);
