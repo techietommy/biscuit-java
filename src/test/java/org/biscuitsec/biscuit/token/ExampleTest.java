@@ -39,5 +39,4 @@ public class ExampleTest {
     Block block = token.createBlock().addCheck("check if operation(\"read\")");
     return token.attenuate(block, root.getPublicKey().getAlgorithm());
   }
-
 }

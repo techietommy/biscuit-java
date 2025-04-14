@@ -127,7 +127,8 @@ public final class Rule implements Serializable {
 
   // do not produce new facts, only find one matching set of facts
   public boolean findMatch(
-      final FactSet facts, Long origin, TrustedOrigins scope, SymbolTable symbolTable) throws Error {
+      final FactSet facts, Long origin, TrustedOrigins scope, SymbolTable symbolTable)
+      throws Error {
     MatchedVariables variables = variablesSet();
 
     if (this.body.isEmpty()) {
@@ -135,7 +136,8 @@ public final class Rule implements Serializable {
     }
 
     Supplier<Stream<Tuple2<Origin, Fact>>> factsSupplier = () -> facts.stream(scope);
-    Stream<Either<Error, Tuple2<Origin, Fact>>> stream = this.apply(factsSupplier, origin, symbolTable);
+    Stream<Either<Error, Tuple2<Origin, Fact>>> stream =
+        this.apply(factsSupplier, origin, symbolTable);
 
     Iterator<Either<Error, Tuple2<Origin, Fact>>> it = stream.iterator();
 

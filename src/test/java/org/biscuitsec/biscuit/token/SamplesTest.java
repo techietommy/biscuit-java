@@ -173,8 +173,7 @@ class SamplesTest {
                           System.out.println(
                               Arrays.toString(token.serializedBiscuit.getAuthority().getBlock()));
                           org.biscuitsec.biscuit.token.Block deserBlockAuthority =
-                              fromBytes(serBlockAuthority, token.authority.getExternalKey())
-                                  .get();
+                              fromBytes(serBlockAuthority, token.authority.getExternalKey()).get();
                           assertEquals(
                               token.authority.print(token.symbolTable),
                               deserBlockAuthority.print(token.symbolTable));
@@ -189,7 +188,8 @@ class SamplesTest {
                             org.biscuitsec.biscuit.token.Block deserBlock =
                                 fromBytes(serBlock, block.getExternalKey()).get();
                             assertEquals(
-                                block.print(token.symbolTable), deserBlock.print(token.symbolTable));
+                                block.print(token.symbolTable),
+                                deserBlock.print(token.symbolTable));
                             assert (Arrays.equals(serBlock, signedBlock.getBlock()));
                           }
 
@@ -300,8 +300,10 @@ class SamplesTest {
   class Block {
     List<String> symbols;
     String code;
+
     @SuppressWarnings("checkstyle:MemberName")
     List<String> public_keys;
+
     @SuppressWarnings("checkstyle:MemberName")
     String external_key;
 
@@ -414,6 +416,7 @@ class SamplesTest {
 
     @SuppressWarnings("checkstyle:MemberName")
     String root_public_key;
+
     List<TestCase> testcases;
 
     @SuppressWarnings("checkstyle:MethodName")

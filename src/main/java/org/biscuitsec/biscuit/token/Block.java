@@ -485,7 +485,6 @@ public final class Block {
     return Collections.unmodifiableList(checks);
   }
 
-
   public List<PublicKey> getPublicKeys() {
     return Collections.unmodifiableList(this.publicKeys);
   }

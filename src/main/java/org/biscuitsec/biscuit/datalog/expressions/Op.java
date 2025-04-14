@@ -52,7 +52,8 @@ public abstract class Op {
     }
 
     @Override
-    public void evaluate(Deque<Term> stack, Map<Long, Term> variables, TemporarySymbolTable temporarySymbolTable)
+    public void evaluate(
+        Deque<Term> stack, Map<Long, Term> variables, TemporarySymbolTable temporarySymbolTable)
         throws Error.Execution {
       if (value instanceof Term.Variable) {
         Term.Variable var = (Term.Variable) value;
@@ -126,7 +127,8 @@ public abstract class Op {
     }
 
     @Override
-    public void evaluate(Deque<Term> stack, Map<Long, Term> variables, TemporarySymbolTable temporarySymbolTable)
+    public void evaluate(
+        Deque<Term> stack, Map<Long, Term> variables, TemporarySymbolTable temporarySymbolTable)
         throws Error.Execution {
       Term value = stack.pop();
       switch (this.op) {
@@ -287,7 +289,8 @@ public abstract class Op {
     }
 
     @Override
-    public void evaluate(Deque<Term> stack, Map<Long, Term> variables, TemporarySymbolTable temporarySymbolTable)
+    public void evaluate(
+        Deque<Term> stack, Map<Long, Term> variables, TemporarySymbolTable temporarySymbolTable)
         throws Error.Execution {
       Term right = stack.pop();
       Term left = stack.pop();
@@ -398,7 +401,8 @@ public abstract class Op {
           }
           if (left instanceof Term.Str && right instanceof Term.Str) {
             Option<String> leftS = temporarySymbolTable.getSymbol((int) ((Term.Str) left).value());
-            Option<String> rightS = temporarySymbolTable.getSymbol((int) ((Term.Str) right).value());
+            Option<String> rightS =
+                temporarySymbolTable.getSymbol((int) ((Term.Str) right).value());
 
             if (leftS.isEmpty()) {
               throw new Error.Execution(
@@ -415,7 +419,8 @@ public abstract class Op {
         case Prefix:
           if (right instanceof Term.Str && left instanceof Term.Str) {
             Option<String> leftS = temporarySymbolTable.getSymbol((int) ((Term.Str) left).value());
-            Option<String> rightS = temporarySymbolTable.getSymbol((int) ((Term.Str) right).value());
+            Option<String> rightS =
+                temporarySymbolTable.getSymbol((int) ((Term.Str) right).value());
             if (leftS.isEmpty()) {
               throw new Error.Execution(
                   "cannot find string in symbols for index " + ((Term.Str) left).value());
@@ -431,7 +436,8 @@ public abstract class Op {
         case Suffix:
           if (right instanceof Term.Str && left instanceof Term.Str) {
             Option<String> leftS = temporarySymbolTable.getSymbol((int) ((Term.Str) left).value());
-            Option<String> rightS = temporarySymbolTable.getSymbol((int) ((Term.Str) right).value());
+            Option<String> rightS =
+                temporarySymbolTable.getSymbol((int) ((Term.Str) right).value());
             if (leftS.isEmpty()) {
               throw new Error.Execution(
                   "cannot find string in symbols for index " + ((Term.Str) left).value());
@@ -446,7 +452,8 @@ public abstract class Op {
         case Regex:
           if (right instanceof Term.Str && left instanceof Term.Str) {
             Option<String> leftS = temporarySymbolTable.getSymbol((int) ((Term.Str) left).value());
-            Option<String> rightS = temporarySymbolTable.getSymbol((int) ((Term.Str) right).value());
+            Option<String> rightS =
+                temporarySymbolTable.getSymbol((int) ((Term.Str) right).value());
             if (leftS.isEmpty()) {
               throw new Error.Execution(
                   "cannot find string in symbols for index " + ((Term.Str) left).value());
@@ -474,7 +481,8 @@ public abstract class Op {
           }
           if (right instanceof Term.Str && left instanceof Term.Str) {
             Option<String> leftS = temporarySymbolTable.getSymbol((int) ((Term.Str) left).value());
-            Option<String> rightS = temporarySymbolTable.getSymbol((int) ((Term.Str) right).value());
+            Option<String> rightS =
+                temporarySymbolTable.getSymbol((int) ((Term.Str) right).value());
 
             if (leftS.isEmpty()) {
               throw new Error.Execution(

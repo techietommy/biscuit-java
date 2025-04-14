@@ -3,6 +3,7 @@ package org.biscuitsec.biscuit.token.builder.parser;
 import biscuit.format.schema.Schema;
 import io.vavr.Tuple2;
 import io.vavr.Tuple4;
+import io.vavr.Tuple5;
 import io.vavr.collection.Stream;
 import io.vavr.control.Either;
 import java.time.OffsetDateTime;
@@ -34,16 +35,22 @@ public final class Parser {
    *
    * <p>If one succeeds it returns Right(Block) else it returns a Map[lineNumber, List[Error]]
    *
-   * @param index block index
    * @param s datalog string to parse
-   * @return Either<Map<Integer, List<Error>>, Block>
+   * @return Either<Map<Integer, List<Error>>, Tuple5<List<Fact>, List<Rule>,
+   *         List<Check>, List<Scope>, List<Policy>>>
    */
-  public static Either<Map<Integer, List<Error>>, Block> datalog(long index, String s) {
-    Block blockBuilder = new Block();
+  public static Either<
+          Map<Integer, List<Error>>,
+          Tuple5<List<Fact>, List<Rule>, List<Check>, List<Scope>, List<Policy>>>
+      datalogComponents(String s) {
+    List<Fact> facts = new ArrayList<>();
+    List<Rule> rules = new ArrayList<>();
+    List<Check> checks = new ArrayList<>();
+    List<Scope> scopes = new ArrayList<>();
+    List<Policy> policies = new ArrayList<>();
 
-    // empty block code
     if (s.isEmpty()) {
-      return Either.right(blockBuilder);
+      return Either.right(new Tuple5<>(facts, rules, checks, scopes, policies));
     }
 
     Map<Integer, List<Error>> errors = new HashMap<>();
@@ -69,7 +76,7 @@ public final class Parser {
                               return false;
                             },
                             r -> {
-                              blockBuilder.addRule(r._2);
+                              rules.add(r._2);
                               return true;
                             });
 
@@ -82,7 +89,7 @@ public final class Parser {
                                 return false;
                               },
                               r -> {
-                                blockBuilder.addFact(r._2);
+                                facts.add(r._2);
                                 return true;
                               });
                 }
@@ -96,7 +103,7 @@ public final class Parser {
                                 return false;
                               },
                               r -> {
-                                blockBuilder.addCheck(r._2);
+                                checks.add(r._2);
                                 return true;
                               });
                 }
@@ -110,7 +117,21 @@ public final class Parser {
                                 return false;
                               },
                               r -> {
-                                blockBuilder.addScope(r._2);
+                                scopes.add(r._2);
+                                return true;
+                              });
+                }
+
+                if (!parsed) {
+                  parsed =
+                      policy(code)
+                          .fold(
+                              e -> {
+                                lineErrors.add(e);
+                                return false;
+                              },
+                              r -> {
+                                policies.add(r._2);
                                 return true;
                               });
                 }
@@ -126,6 +147,52 @@ public final class Parser {
     if (!errors.isEmpty()) {
       return Either.left(errors);
     }
+
+    return Either.right(new Tuple5<>(facts, rules, checks, scopes, policies));
+  }
+
+  /**
+   * Takes a datalog string with <code>\n</code> as datalog line separator. It
+   * tries to parse each
+   * line using fact, rule, check and scope sequentially.
+   *
+   * <p>
+   * If one succeeds it returns Right(Block) else it returns a Map[lineNumber,
+   * List[Error]]
+   *
+   * @param index block index
+   * @param s     datalog string to parse
+   * @return Either<Map<Integer, List<Error>>, Block>
+   */
+  public static Either<Map<Integer, List<Error>>, Block> datalog(long index, String s) {
+    Block blockBuilder = new Block();
+
+    Either<
+            Map<Integer, List<Error>>,
+            Tuple5<List<Fact>, List<Rule>, List<Check>, List<Scope>, List<Policy>>>
+        result = datalogComponents(s);
+
+    if (result.isLeft()) {
+      return Either.left(result.getLeft());
+    }
+
+    Tuple5<List<Fact>, List<Rule>, List<Check>, List<Scope>, List<Policy>> components =
+        result.get();
+
+    if (!components._5.isEmpty()) {
+      return Either.left(
+          Map.of(
+              -1, // we don't have a line number for policies
+              List.of(
+                  new Error(
+                      s,
+                      "Policies must be empty but found " + components._5.size() + " policies"))));
+    }
+
+    components._1.forEach(blockBuilder::addFact);
+    components._2.forEach(blockBuilder::addRule);
+    components._3.forEach(blockBuilder::addCheck);
+    components._4.forEach(blockBuilder::addScope);
 
     return Either.right(blockBuilder);
   }

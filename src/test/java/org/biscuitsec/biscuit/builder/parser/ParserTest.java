@@ -275,7 +275,7 @@ class ParserTest {
             new Tuple2<>(
                 "",
                 new Check(
-                        ONE,
+                    ONE,
                     Arrays.asList(
                         Utils.rule(
                             "query",

@@ -119,7 +119,10 @@ public final class Combinator implements Serializable, Iterator<Tuple2<Origin, M
               // no need to copy all the expressions at all levels
               this.currentIt =
                   new Combinator(
-                      vars, predicates.subList(1, predicates.size()), this.allFacts, this.symbolTable);
+                      vars,
+                      predicates.subList(1, predicates.size()),
+                      this.allFacts,
+                      this.symbolTable);
             }
             break;
 

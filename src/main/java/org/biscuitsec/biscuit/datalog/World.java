@@ -90,13 +90,14 @@ public final class World implements Serializable {
     return this.rules;
   }
 
-  public FactSet queryRule(final Rule rule, Long origin, TrustedOrigins scope, SymbolTable symbolTable)
-      throws Error {
+  public FactSet queryRule(
+      final Rule rule, Long origin, TrustedOrigins scope, SymbolTable symbolTable) throws Error {
     final FactSet newFacts = new FactSet();
 
     Supplier<Stream<Tuple2<Origin, Fact>>> factsSupplier = () -> this.facts.stream(scope);
 
-    Stream<Either<Error, Tuple2<Origin, Fact>>> stream = rule.apply(factsSupplier, origin, symbolTable);
+    Stream<Either<Error, Tuple2<Origin, Fact>>> stream =
+        rule.apply(factsSupplier, origin, symbolTable);
     for (Iterator<Either<Error, Tuple2<Origin, Fact>>> it = stream.iterator(); it.hasNext(); ) {
       Either<Error, Tuple2<Origin, Fact>> res = it.next();
 
@@ -111,8 +112,8 @@ public final class World implements Serializable {
     return newFacts;
   }
 
-  public boolean queryMatch(final Rule rule, Long origin, TrustedOrigins scope, SymbolTable symbolTable)
-      throws Error {
+  public boolean queryMatch(
+      final Rule rule, Long origin, TrustedOrigins scope, SymbolTable symbolTable) throws Error {
     return rule.findMatch(this.facts, origin, scope, symbolTable);
   }
 

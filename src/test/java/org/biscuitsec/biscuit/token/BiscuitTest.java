@@ -25,12 +25,10 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-
 import org.biscuitsec.biscuit.crypto.KeyDelegate;
 import org.biscuitsec.biscuit.crypto.KeyPair;
 import org.biscuitsec.biscuit.crypto.PublicKey;
 import org.biscuitsec.biscuit.datalog.RunLimits;
-import org.biscuitsec.biscuit.datalog.SymbolTable;
 import org.biscuitsec.biscuit.error.Error;
 import org.biscuitsec.biscuit.error.FailedCheck;
 import org.biscuitsec.biscuit.error.LogicError;
@@ -82,7 +80,7 @@ public class BiscuitTest {
         check(
             rule(
                 "caveat1",
-                    List.of(var("resource")),
+                List.of(var("resource")),
                 Arrays.asList(
                     pred("resource", List.of(var("resource"))),
                     pred("operation", List.of(str("read"))),
@@ -115,8 +113,8 @@ public class BiscuitTest {
         check(
             rule(
                 "caveat2",
-                    List.of(str("file1")),
-                    List.of(pred("resource", List.of(str("file1")))))));
+                List.of(str("file1")),
+                List.of(pred("resource", List.of(str("file1")))))));
 
     Biscuit b3 = deser2.attenuate(rng, keypair3, builder3);
 
@@ -441,7 +439,7 @@ public class BiscuitTest {
         check(
             rule(
                 "caveat1",
-                    List.of(var("resource")),
+                List.of(var("resource")),
                 Arrays.asList(
                     pred("resource", List.of(var("resource"))),
                     pred("operation", List.of(str("read"))),
@@ -474,8 +472,8 @@ public class BiscuitTest {
         check(
             rule(
                 "caveat2",
-                    List.of(str("file1")),
-                    List.of(pred("resource", List.of(str("file1")))))));
+                List.of(str("file1")),
+                List.of(pred("resource", List.of(str("file1")))))));
 
     Biscuit b3 = deser2.attenuate(rng, keypair3, builder3);
 
@@ -571,7 +569,7 @@ public class BiscuitTest {
         check(
             rule(
                 "caveat1",
-                    List.of(var("resource")),
+                List.of(var("resource")),
                 Arrays.asList(
                     pred("resource", List.of(var("resource"))),
                     pred("operation", List.of(str("read"))),
@@ -604,8 +602,8 @@ public class BiscuitTest {
         check(
             rule(
                 "caveat2",
-                    List.of(str("file1")),
-                    List.of(pred("resource", List.of(str("file1")))))));
+                List.of(str("file1")),
+                List.of(pred("resource", List.of(str("file1")))))));
 
     Biscuit b3 = deser2.attenuate(rng, keypair3, builder3);
 
@@ -762,12 +760,12 @@ public class BiscuitTest {
           new Error.FailedLogic(
               new LogicError.Unauthorized(
                   new LogicError.MatchedPolicy.Allow(0),
-                      List.of(
-                              new FailedCheck.FailedBlock(
-                                      0,
-                                      0,
-                                      "check all operation($op), allowed_operations($allowed),"
-                                              + " $allowed.contains($op)")))),
+                  List.of(
+                      new FailedCheck.FailedBlock(
+                          0,
+                          0,
+                          "check all operation($op), allowed_operations($allowed),"
+                              + " $allowed.contains($op)")))),
           e);
     }
 
