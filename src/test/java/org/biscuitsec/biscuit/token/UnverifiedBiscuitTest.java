@@ -3,6 +3,7 @@ package org.biscuitsec.biscuit.token;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import biscuit.format.schema.Schema;
+import biscuit.format.schema.Schema.PublicKey.Algorithm;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -56,7 +57,6 @@ public class UnverifiedBiscuitTest {
     // SECOND BLOCK
     System.out.println("preparing the second block");
 
-    KeyPair keypair1 = KeyPair.generate(Schema.PublicKey.Algorithm.Ed25519, rng);
     org.biscuitsec.biscuit.token.builder.Block block1 = deser0.createBlock();
     block1.addCheck(
         Utils.check(
@@ -67,7 +67,7 @@ public class UnverifiedBiscuitTest {
                     Utils.pred("resource", List.of(Utils.var("resource"))),
                     Utils.pred("operation", List.of(Utils.str("read"))),
                     Utils.pred("right", List.of(Utils.var("resource"), Utils.str("read")))))));
-    UnverifiedBiscuit unverifiedBiscuit1 = deser0.attenuate(rng, keypair1, block1.build());
+    UnverifiedBiscuit unverifiedBiscuit1 = deser0.attenuate(block1, Algorithm.Ed25519);
 
     System.out.println(unverifiedBiscuit1.print());
 
@@ -87,8 +87,6 @@ public class UnverifiedBiscuitTest {
     // THIRD BLOCK
     System.out.println("preparing the third block");
 
-    KeyPair keypair2 = KeyPair.generate(Schema.PublicKey.Algorithm.Ed25519, rng);
-
     Block block2 = unverifiedBiscuit1.createBlock();
     block2.addCheck(
         Utils.check(
@@ -97,7 +95,7 @@ public class UnverifiedBiscuitTest {
                 List.of(Utils.str("file1")),
                 List.of(Utils.pred("resource", List.of(Utils.str("file1")))))));
 
-    UnverifiedBiscuit unverifiedBiscuit2 = unverifiedBiscuit1.attenuate(rng, keypair2, block2);
+    UnverifiedBiscuit unverifiedBiscuit2 = unverifiedBiscuit1.attenuate(block2, Algorithm.Ed25519);
 
     System.out.println(unverifiedBiscuit2.print());
 
