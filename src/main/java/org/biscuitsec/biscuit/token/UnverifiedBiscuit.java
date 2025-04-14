@@ -158,7 +158,7 @@ public class UnverifiedBiscuit {
    * @param block new block (should be generated from a Block builder)
    * @return
    */
-  public UnverifiedBiscuit attenuate(final SecureRandom rng, final KeyPair keypair, Block block)
+  private UnverifiedBiscuit attenuate(final SecureRandom rng, final KeyPair keypair, Block block)
       throws Error {
     UnverifiedBiscuit copiedBiscuit = this.copy();
 
