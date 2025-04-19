@@ -49,7 +49,8 @@ class SamplesTest {
     Gson gson = new Gson();
     Sample sample =
         gson.fromJson(new InputStreamReader(new BufferedInputStream(inputStream)), Sample.class);
-    PublicKey publicKey = new PublicKey(Schema.PublicKey.Algorithm.Ed25519, sample.root_public_key);
+    PublicKey publicKey =
+        PublicKey.load(Schema.PublicKey.Algorithm.Ed25519, sample.root_public_key);
     KeyPair keyPair = KeyPair.generate(Schema.PublicKey.Algorithm.Ed25519, sample.root_private_key);
     return sample.testcases.stream().map(t -> processTestcase(t, publicKey, keyPair));
   }

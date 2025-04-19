@@ -3,58 +3,34 @@ package org.biscuitsec.biscuit.crypto;
 import biscuit.format.schema.Schema;
 import biscuit.format.schema.Schema.PublicKey.Algorithm;
 import com.google.protobuf.ByteString;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SignatureException;
 import java.util.Optional;
 import java.util.Set;
-import net.i2p.crypto.eddsa.EdDSAPublicKey;
 import org.biscuitsec.biscuit.error.Error;
 import org.biscuitsec.biscuit.token.builder.Utils;
-import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPublicKey;
 
-public final class PublicKey {
-
-  private final java.security.PublicKey key;
-  private final Algorithm algorithm;
+public abstract class PublicKey {
 
   private static final Set<Algorithm> SUPPORTED_ALGORITHMS =
       Set.of(Algorithm.Ed25519, Algorithm.SECP256R1);
 
-  public PublicKey(Algorithm algorithm, java.security.PublicKey publicKey) {
-    this.key = publicKey;
-    this.algorithm = algorithm;
-  }
-
-  public PublicKey(Algorithm algorithm, byte[] data) {
+  public static PublicKey load(Algorithm algorithm, byte[] data) {
     if (algorithm == Algorithm.Ed25519) {
-      this.key = Ed25519KeyPair.decode(data);
+      return Ed25519PublicKey.loadEd25519(data);
     } else if (algorithm == Algorithm.SECP256R1) {
-      this.key = SECP256R1KeyPair.decode(data);
+      return SECP256R1PublicKey.loadSECP256R1(data);
     } else {
-      throw new IllegalArgumentException("Invalid algorithm");
+      throw new IllegalArgumentException("Unsupported algorithm");
     }
-    this.algorithm = algorithm;
   }
 
-  public PublicKey(Algorithm algorithm, String hex) {
-    byte[] data = Utils.hexStringToByteArray(hex);
-    if (algorithm == Algorithm.Ed25519) {
-      this.key = Ed25519KeyPair.decode(data);
-    } else if (algorithm == Algorithm.SECP256R1) {
-      this.key = SECP256R1KeyPair.decode(data);
-    } else {
-      throw new IllegalArgumentException("Invalid algorithm");
-    }
-    this.algorithm = algorithm;
+  public static PublicKey load(Algorithm algorithm, String hex) {
+    return load(algorithm, Utils.hexStringToByteArray(hex));
   }
 
-  public byte[] toBytes() {
-    if (this.algorithm == Algorithm.Ed25519) {
-      return ((EdDSAPublicKey) getKey()).getAbyte();
-    } else if (this.algorithm == Algorithm.SECP256R1) {
-      return ((BCECPublicKey) getKey()).getQ().getEncoded(true); // true = compressed
-    } else {
-      throw new IllegalArgumentException("Invalid algorithm");
-    }
-  }
+  public abstract byte[] toBytes();
 
   public String toHex() {
     return Utils.byteArrayToHexString(this.toBytes());
@@ -63,7 +39,7 @@ public final class PublicKey {
   public Schema.PublicKey serialize() {
     Schema.PublicKey.Builder publicKey = Schema.PublicKey.newBuilder();
     publicKey.setKey(ByteString.copyFrom(this.toBytes()));
-    publicKey.setAlgorithm(this.algorithm);
+    publicKey.setAlgorithm(this.getAlgorithm());
     return publicKey.build();
   }
 
@@ -72,7 +48,7 @@ public final class PublicKey {
     if (!pk.hasAlgorithm() || !pk.hasKey() || !SUPPORTED_ALGORITHMS.contains(pk.getAlgorithm())) {
       throw new Error.FormatError.DeserializationError("Invalid public key");
     }
-    return new PublicKey(pk.getAlgorithm(), pk.getKey().toByteArray());
+    return PublicKey.load(pk.getAlgorithm(), pk.getKey().toByteArray());
   }
 
   public static Optional<Error> validateSignatureLength(Algorithm algorithm, int length) {
@@ -93,41 +69,8 @@ public final class PublicKey {
     return error;
   }
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
+  public abstract Algorithm getAlgorithm();
 
-    PublicKey publicKey = (PublicKey) o;
-
-    return this.key.equals(publicKey.getKey());
-  }
-
-  @Override
-  public int hashCode() {
-    return getKey().hashCode();
-  }
-
-  @Override
-  public String toString() {
-    if (this.algorithm == Algorithm.Ed25519) {
-      return "ed25519/" + toHex().toLowerCase();
-    } else if (this.algorithm == Algorithm.SECP256R1) {
-      return "secp256r1/" + toHex().toLowerCase();
-    } else {
-      return null;
-    }
-  }
-
-  public java.security.PublicKey getKey() {
-    return this.key;
-  }
-
-  public Algorithm getAlgorithm() {
-    return this.algorithm;
-  }
+  public abstract boolean verify(byte[] data, byte[] signature)
+      throws InvalidKeyException, SignatureException, NoSuchAlgorithmException;
 }

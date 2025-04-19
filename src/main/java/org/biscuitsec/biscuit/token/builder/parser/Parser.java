@@ -509,12 +509,12 @@ public final class Parser {
       s = s.substring("ed25519/".length());
       Tuple2<String, byte[]> t = hex(s);
       return Either.right(
-          new Tuple2(t._1, new PublicKey(Schema.PublicKey.Algorithm.Ed25519, t._2)));
+          new Tuple2(t._1, PublicKey.load(Schema.PublicKey.Algorithm.Ed25519, t._2)));
     } else if (s.startsWith("secp256r1/")) {
       s = s.substring("secp256r1/".length());
       Tuple2<String, byte[]> t = hex(s);
       return Either.right(
-          new Tuple2(t._1, new PublicKey(Schema.PublicKey.Algorithm.SECP256R1, t._2)));
+          new Tuple2(t._1, PublicKey.load(Schema.PublicKey.Algorithm.SECP256R1, t._2)));
     } else {
       return Either.left(new Error(s, "unrecognized public key prefix"));
     }

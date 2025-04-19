@@ -1,81 +1,52 @@
 package org.biscuitsec.biscuit.crypto;
 
-import biscuit.format.schema.Schema;
-import java.security.InvalidKeyException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.security.Signature;
-import java.security.SignatureException;
-import net.i2p.crypto.eddsa.EdDSAEngine;
-import net.i2p.crypto.eddsa.EdDSAPrivateKey;
-import net.i2p.crypto.eddsa.EdDSAPublicKey;
-import net.i2p.crypto.eddsa.spec.EdDSANamedCurveSpec;
-import net.i2p.crypto.eddsa.spec.EdDSANamedCurveTable;
-import net.i2p.crypto.eddsa.spec.EdDSAPrivateKeySpec;
-import net.i2p.crypto.eddsa.spec.EdDSAPublicKeySpec;
 import org.biscuitsec.biscuit.token.builder.Utils;
+import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
+import org.bouncycastle.crypto.generators.Ed25519KeyPairGenerator;
+import org.bouncycastle.crypto.params.Ed25519KeyGenerationParameters;
+import org.bouncycastle.crypto.params.Ed25519PrivateKeyParameters;
+import org.bouncycastle.crypto.params.Ed25519PublicKeyParameters;
+import org.bouncycastle.crypto.signers.Ed25519Signer;
 
 final class Ed25519KeyPair extends KeyPair {
-  private static final int BUFFER_SIZE = 32;
-
   public static final int SIGNATURE_LENGTH = 64;
 
-  private final EdDSAPrivateKey privateKey;
-  private final EdDSAPublicKey publicKey;
-
-  private static final EdDSANamedCurveSpec ED_25519 =
-      EdDSANamedCurveTable.getByName(EdDSANamedCurveTable.ED_25519);
+  private final Ed25519PrivateKeyParameters privateKey;
+  private final Ed25519PublicKeyParameters publicKey;
 
   Ed25519KeyPair(byte[] bytes) {
-    EdDSAPrivateKeySpec privKeySpec = new EdDSAPrivateKeySpec(bytes, ED_25519);
-    EdDSAPrivateKey privKey = new EdDSAPrivateKey(privKeySpec);
+    Ed25519PrivateKeyParameters privateKey = new Ed25519PrivateKeyParameters(bytes);
+    Ed25519PublicKeyParameters publicKey = privateKey.generatePublicKey();
 
-    EdDSAPublicKeySpec pubKeySpec = new EdDSAPublicKeySpec(privKey.getA(), ED_25519);
-    EdDSAPublicKey pubKey = new EdDSAPublicKey(pubKeySpec);
-
-    this.privateKey = privKey;
-    this.publicKey = pubKey;
+    this.privateKey = privateKey;
+    this.publicKey = publicKey;
   }
 
   Ed25519KeyPair(SecureRandom rng) {
-    byte[] b = new byte[BUFFER_SIZE];
-    rng.nextBytes(b);
 
-    EdDSAPrivateKeySpec privKeySpec = new EdDSAPrivateKeySpec(b, ED_25519);
-    EdDSAPrivateKey privKey = new EdDSAPrivateKey(privKeySpec);
+    Ed25519KeyPairGenerator kpg = new Ed25519KeyPairGenerator();
+    kpg.init(new Ed25519KeyGenerationParameters(rng));
 
-    EdDSAPublicKeySpec pubKeySpec = new EdDSAPublicKeySpec(privKey.getA(), ED_25519);
-    EdDSAPublicKey pubKey = new EdDSAPublicKey(pubKeySpec);
+    AsymmetricCipherKeyPair kp = kpg.generateKeyPair();
+    Ed25519PrivateKeyParameters privateKey = (Ed25519PrivateKeyParameters) kp.getPrivate();
+    Ed25519PublicKeyParameters publicKey = (Ed25519PublicKeyParameters) kp.getPublic();
 
-    this.privateKey = privKey;
-    this.publicKey = pubKey;
-  }
-
-  Ed25519KeyPair(String hex) {
-    this(Utils.hexStringToByteArray(hex));
-  }
-
-  public static java.security.PublicKey decode(byte[] data) {
-    return new EdDSAPublicKey(new EdDSAPublicKeySpec(data, ED_25519));
-  }
-
-  public static Signature getSignature() throws NoSuchAlgorithmException {
-    return new EdDSAEngine(MessageDigest.getInstance(ED_25519.getHashAlgorithm()));
+    this.privateKey = privateKey;
+    this.publicKey = publicKey;
   }
 
   @Override
-  public byte[] sign(byte[] data)
-      throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
-    Signature sgr = KeyPair.generateSignature(Schema.PublicKey.Algorithm.Ed25519);
-    sgr.initSign(privateKey);
-    sgr.update(data);
-    return sgr.sign();
+  public byte[] sign(byte[] data) {
+    var sgr = new Ed25519Signer();
+    sgr.init(true, this.privateKey);
+    sgr.update(data, 0, data.length);
+    return sgr.generateSignature();
   }
 
   @Override
   public byte[] toBytes() {
-    return privateKey.getSeed();
+    return privateKey.getEncoded();
   }
 
   @Override
@@ -85,6 +56,6 @@ final class Ed25519KeyPair extends KeyPair {
 
   @Override
   public PublicKey getPublicKey() {
-    return new PublicKey(Schema.PublicKey.Algorithm.Ed25519, this.publicKey);
+    return new Ed25519PublicKey(this.publicKey);
   }
 }
