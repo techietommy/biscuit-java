@@ -36,19 +36,16 @@ public class UnverifiedBiscuit {
   protected final List<Block> blocks;
   protected final SymbolTable symbolTable;
   protected final SerializedBiscuit serializedBiscuit;
-  protected final List<byte[]> revocationIds;
 
   UnverifiedBiscuit(
       Block authority,
       List<Block> blocks,
       SymbolTable symbolTable,
-      SerializedBiscuit serializedBiscuit,
-      List<byte[]> revocationIds) {
+      SerializedBiscuit serializedBiscuit) {
     this.authority = authority;
     this.blocks = blocks;
     this.symbolTable = symbolTable;
     this.serializedBiscuit = serializedBiscuit;
-    this.revocationIds = revocationIds;
   }
 
   /**
@@ -98,9 +95,7 @@ public class UnverifiedBiscuit {
     Block authority = t._1;
     ArrayList<Block> blocks = t._2;
 
-    List<byte[]> revocationIds = ser.revocationIdentifiers();
-
-    return new UnverifiedBiscuit(authority, blocks, symbolTable, ser, revocationIds);
+    return new UnverifiedBiscuit(authority, blocks, symbolTable, ser);
   }
 
   /**
@@ -189,16 +184,13 @@ public class UnverifiedBiscuit {
     blocks.add(block);
     SerializedBiscuit container = containerRes.get();
 
-    List<byte[]> revocationIds = container.revocationIdentifiers();
-
-    return new UnverifiedBiscuit(
-        copiedBiscuit.authority, blocks, symbols, container, revocationIds);
+    return new UnverifiedBiscuit(copiedBiscuit.authority, blocks, symbols, container);
   }
 
   // FIXME: attenuate 3rd Party
 
   public List<RevocationIdentifier> revocationIdentifiers() {
-    return this.revocationIds.stream()
+    return this.serializedBiscuit.revocationIdentifiers().stream()
         .map(RevocationIdentifier::fromBytes)
         .collect(Collectors.toList());
   }
@@ -304,9 +296,7 @@ public class UnverifiedBiscuit {
     }
     blocks.add(block);
 
-    List<byte[]> revocationIds = container.revocationIdentifiers();
-    return new UnverifiedBiscuit(
-        copiedBiscuit.authority, blocks, symbols, container, revocationIds);
+    return new UnverifiedBiscuit(copiedBiscuit.authority, blocks, symbols, container);
   }
 
   /** Prints a token's content */

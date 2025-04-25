@@ -128,10 +128,9 @@ public final class Biscuit extends UnverifiedBiscuit {
       throw container.getLeft();
     } else {
       SerializedBiscuit s = container.get();
-      List<byte[]> revocationIds = s.revocationIdentifiers();
 
       Option<SerializedBiscuit> c = Option.some(s);
-      return new Biscuit(authority, blocks, authority.getSymbolTable(), s, revocationIds);
+      return new Biscuit(authority, blocks, authority.getSymbolTable(), s);
     }
   }
 
@@ -139,9 +138,8 @@ public final class Biscuit extends UnverifiedBiscuit {
       Block authority,
       List<Block> blocks,
       SymbolTable symbolTable,
-      SerializedBiscuit serializedBiscuit,
-      List<byte[]> revocationIds) {
-    super(authority, blocks, symbolTable, serializedBiscuit, revocationIds);
+      SerializedBiscuit serializedBiscuit) {
+    super(authority, blocks, symbolTable, serializedBiscuit);
   }
 
   /**
@@ -268,9 +266,7 @@ public final class Biscuit extends UnverifiedBiscuit {
     Block authority = t._1;
     ArrayList<Block> blocks = t._2;
 
-    List<byte[]> revocationIds = ser.revocationIdentifiers();
-
-    return new Biscuit(authority, blocks, symbolTable, ser, revocationIds);
+    return new Biscuit(authority, blocks, symbolTable, ser);
   }
 
   /**
@@ -365,9 +361,8 @@ public final class Biscuit extends UnverifiedBiscuit {
     blocks.add(block);
 
     SerializedBiscuit container = containerRes.get();
-    List<byte[]> revocationIds = container.revocationIdentifiers();
 
-    return new Biscuit(copiedBiscuit.authority, blocks, symbolTable, container, revocationIds);
+    return new Biscuit(copiedBiscuit.authority, blocks, symbolTable, container);
   }
 
   /** Generates a third party block request from a token */
