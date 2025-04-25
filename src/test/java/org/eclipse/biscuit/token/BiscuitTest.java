@@ -72,6 +72,7 @@ public class BiscuitTest {
 
     System.out.println("deserializing the first token");
     Biscuit deser = Biscuit.fromBytes(data, root.getPublicKey());
+    assertEquals(1, deser.blockCount());
 
     System.out.println(deser.print());
 
@@ -105,6 +106,7 @@ public class BiscuitTest {
 
     System.out.println("deserializing the second token");
     Biscuit deser2 = Biscuit.fromBytes(data2, root.getPublicKey());
+    assertEquals(2, deser2.blockCount());
 
     System.out.println(deser2.print());
 
@@ -135,6 +137,7 @@ public class BiscuitTest {
 
     System.out.println("deserializing the third token");
     Biscuit finalToken = Biscuit.fromBytes(data3, root.getPublicKey());
+    assertEquals(3, finalToken.blockCount());
 
     System.out.println(finalToken.print());
 

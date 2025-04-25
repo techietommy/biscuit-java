@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.eclipse.biscuit.crypto.BlockSignatureBuffer;
 import org.eclipse.biscuit.crypto.KeyDelegate;
 import org.eclipse.biscuit.crypto.KeyPair;
@@ -134,7 +135,7 @@ public class UnverifiedBiscuit {
    * @return
    */
   public UnverifiedBiscuit attenuate(
-          org.eclipse.biscuit.token.builder.Block block, Algorithm algorithm) throws Error {
+      org.eclipse.biscuit.token.builder.Block block, Algorithm algorithm) throws Error {
     SecureRandom rng = new SecureRandom();
     KeyPair keypair = KeyPair.generate(algorithm, rng);
     SymbolTable builderSymbols = new SymbolTable(this.symbolTable);
@@ -142,9 +143,7 @@ public class UnverifiedBiscuit {
   }
 
   public UnverifiedBiscuit attenuate(
-      final SecureRandom rng,
-      final KeyPair keypair,
-      org.eclipse.biscuit.token.builder.Block block)
+      final SecureRandom rng, final KeyPair keypair, org.eclipse.biscuit.token.builder.Block block)
       throws Error {
     SymbolTable builderSymbols = new SymbolTable(this.symbolTable);
     return attenuate(rng, keypair, block.build(builderSymbols));
@@ -195,6 +194,14 @@ public class UnverifiedBiscuit {
         .collect(Collectors.toList());
   }
 
+  public List<Option<PublicKey>> externalPublicKeys() {
+    return Stream.<Option<PublicKey>>concat(
+            Stream.of(Option.none()),
+            this.serializedBiscuit.getBlocks().stream()
+                .map(b -> b.getExternalSignature().map(ExternalSignature::getKey)))
+        .collect(Collectors.toList());
+  }
+
   public List<List<Check>> getChecks() {
     ArrayList<List<Check>> l = new ArrayList<>();
     l.add(new ArrayList<>(this.authority.getChecks()));
@@ -227,6 +234,26 @@ public class UnverifiedBiscuit {
 
   public Option<Integer> getRootKeyId() {
     return this.serializedBiscuit.getRootKeyId();
+  }
+
+  public int blockCount() {
+    return 1 + blocks.size();
+  }
+
+  public Option<PublicKey> blockExternalKey(int index) {
+    if (index == 0) {
+      return authority.getExternalKey();
+    } else {
+      return blocks.get(index - 1).getExternalKey();
+    }
+  }
+
+  public List<PublicKey> blockPublicKeys(int index) {
+    if (index == 0) {
+      return authority.getPublicKeys();
+    } else {
+      return blocks.get(index - 1).getPublicKeys();
+    }
   }
 
   /** Generates a third party block request from a token */
