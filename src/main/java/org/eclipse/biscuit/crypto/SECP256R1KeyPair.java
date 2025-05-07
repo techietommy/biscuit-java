@@ -69,7 +69,8 @@ final class SECP256R1KeyPair extends KeyPair {
   }
 
   static Signature getSignature() throws NoSuchAlgorithmException {
-    return Signature.getInstance("SHA256withECDSA", new BouncyCastleProvider());
+    return Signature.getInstance(
+        "SHA256withECDSA", Security.getProvider(BouncyCastleProvider.PROVIDER_NAME));
   }
 
   @Override
