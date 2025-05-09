@@ -708,6 +708,11 @@ public final class Authorizer {
       }
     }
 
+    List<String> policies = new ArrayList<>();
+    for (Policy policy : this.policies) {
+      policies.add(policy.toString());
+    }
+
     return "World {\n\tfacts: ["
         + facts.toString()
         // String.join(",\n\t\t", facts) +
@@ -715,6 +720,8 @@ public final class Authorizer {
         + String.join(",\n\t\t", rules)
         + "\n\t],\n\tchecks: [\n\t\t"
         + String.join(",\n\t\t", checks)
+        + "\n\t],\n\tpolicies: [\n\t\t"
+        + String.join(",\n\t\t", policies)
         + "\n\t]\n}";
   }
 
