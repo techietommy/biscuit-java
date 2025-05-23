@@ -5,12 +5,11 @@
 
 package org.eclipse.biscuit.crypto;
 
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
+import java.io.IOException;
 import java.security.SecureRandom;
-import java.security.Security;
-import java.security.Signature;
-import java.security.SignatureException;
+import org.bouncycastle.crypto.digests.SHA256Digest;
+import org.bouncycastle.crypto.signers.ECDSASigner;
+import org.bouncycastle.crypto.signers.StandardDSAEncoding;
 import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey;
 import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPublicKey;
 import org.bouncycastle.jce.ECNamedCurveTable;
@@ -30,10 +29,6 @@ final class SECP256R1KeyPair extends KeyPair {
 
   private final BCECPrivateKey privateKey;
   private final BCECPublicKey publicKey;
-
-  static {
-    Security.addProvider(new BouncyCastleProvider());
-  }
 
   static final String ALGORITHM = "ECDSA";
   static final String CURVE = "secp256r1";
@@ -68,18 +63,22 @@ final class SECP256R1KeyPair extends KeyPair {
     this.publicKey = publicKey;
   }
 
-  static Signature getSignature() throws NoSuchAlgorithmException {
-    return Signature.getInstance(
-        "SHA256withECDSA", Security.getProvider(BouncyCastleProvider.PROVIDER_NAME));
-  }
-
   @Override
-  public byte[] sign(byte[] data)
-      throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
-    Signature sgr = getSignature();
-    sgr.initSign(privateKey);
-    sgr.update(data);
-    return sgr.sign();
+  public byte[] sign(byte[] data) {
+    var digest = new SHA256Digest();
+    digest.update(data, 0, data.length);
+    var hash = new byte[digest.getDigestSize()];
+    digest.doFinal(hash, 0);
+
+    var signer = new ECDSASigner();
+    signer.init(true, privateKey.engineGetKeyParameters());
+    var sig = signer.generateSignature(hash);
+
+    try {
+      return StandardDSAEncoding.INSTANCE.encode(signer.getOrder(), sig[0], sig[1]);
+    } catch (IOException e) {
+      throw new IllegalStateException(e.toString());
+    }
   }
 
   @Override
