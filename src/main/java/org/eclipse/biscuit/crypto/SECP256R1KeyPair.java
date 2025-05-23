@@ -18,6 +18,7 @@ import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec;
 import org.bouncycastle.jce.spec.ECPrivateKeySpec;
 import org.bouncycastle.jce.spec.ECPublicKeySpec;
 import org.bouncycastle.util.BigIntegers;
+import org.eclipse.biscuit.error.Error;
 import org.eclipse.biscuit.token.builder.Utils;
 
 @SuppressWarnings("checkstyle:AbbreviationAsWordInName")
@@ -34,7 +35,10 @@ final class SECP256R1KeyPair extends KeyPair {
   static final String CURVE = "secp256r1";
   static final ECNamedCurveParameterSpec SECP256R1 = ECNamedCurveTable.getParameterSpec(CURVE);
 
-  SECP256R1KeyPair(byte[] bytes) {
+  SECP256R1KeyPair(byte[] bytes) throws Error.FormatError.InvalidKeySize {
+    if (bytes.length != BUFFER_SIZE) {
+      throw new Error.FormatError.InvalidKeySize(bytes.length);
+    }
     var privateKeySpec = new ECPrivateKeySpec(BigIntegers.fromUnsignedByteArray(bytes), SECP256R1);
     var privateKey =
         new BCECPrivateKey(ALGORITHM, privateKeySpec, BouncyCastleProvider.CONFIGURATION);

@@ -7,12 +7,13 @@ package org.eclipse.biscuit.crypto;
 
 import biscuit.format.schema.Schema.PublicKey.Algorithm;
 import java.security.SecureRandom;
+import org.eclipse.biscuit.error.Error;
 import org.eclipse.biscuit.token.builder.Utils;
 
 /** Private and public key. */
 public abstract class KeyPair implements Signer {
   public interface Factory {
-    KeyPair generate(byte[] bytes);
+    KeyPair generate(byte[] bytes) throws Error.FormatError.InvalidKeySize;
 
     KeyPair generate(SecureRandom rng);
   }
@@ -20,7 +21,7 @@ public abstract class KeyPair implements Signer {
   public static final Factory DEFAULT_ED25519_FACTORY =
       new Factory() {
         @Override
-        public KeyPair generate(byte[] bytes) {
+        public KeyPair generate(byte[] bytes) throws Error.FormatError.InvalidKeySize {
           return new Ed25519KeyPair(bytes);
         }
 
@@ -33,7 +34,7 @@ public abstract class KeyPair implements Signer {
   public static final Factory DEFAULT_SECP256R1_FACTORY =
       new Factory() {
         @Override
-        public KeyPair generate(byte[] bytes) {
+        public KeyPair generate(byte[] bytes) throws Error.FormatError.InvalidKeySize {
           return new SECP256R1KeyPair(bytes);
         }
 
@@ -50,11 +51,13 @@ public abstract class KeyPair implements Signer {
     return generate(algorithm, new SecureRandom());
   }
 
-  public static KeyPair generate(Algorithm algorithm, String hex) {
+  public static KeyPair generate(Algorithm algorithm, String hex)
+      throws Error.FormatError.InvalidKeySize {
     return generate(algorithm, Utils.hexStringToByteArray(hex));
   }
 
-  public static KeyPair generate(Algorithm algorithm, byte[] bytes) {
+  public static KeyPair generate(Algorithm algorithm, byte[] bytes)
+      throws Error.FormatError.InvalidKeySize {
     if (algorithm == Algorithm.Ed25519) {
       return ed25519Factory.generate(bytes);
     } else if (algorithm == Algorithm.SECP256R1) {
