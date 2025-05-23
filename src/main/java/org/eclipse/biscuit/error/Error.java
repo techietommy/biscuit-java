@@ -440,6 +440,43 @@ public class Error extends Exception {
         return FormatError.jsonWrapper(jo);
       }
     }
+
+    public static final class InvalidKey extends FormatError {
+      private final String err;
+
+      public InvalidKey(String e) {
+        this.err = e;
+      }
+
+      @Override
+      public boolean equals(Object o) {
+        if (this == o) {
+          return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+          return false;
+        }
+        InvalidKey other = (InvalidKey) o;
+        return err.equals(other.err);
+      }
+
+      @Override
+      public int hashCode() {
+        return Objects.hash(err);
+      }
+
+      @Override
+      public String toString() {
+        return "Err(Format(InvalidKey(\"" + this.err + "\"))";
+      }
+
+      @Override
+      public JsonElement toJson() {
+        JsonObject jo = new JsonObject();
+        jo.addProperty("InvalidKey", this.err);
+        return FormatError.jsonWrapper(jo);
+      }
+    }
   }
 
   public static final class InvalidAuthorityIndex extends Error {

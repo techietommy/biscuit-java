@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
  */
 public class SignatureTest {
   @Test
-  public void testSerialize() throws Error.FormatError.InvalidKeySize {
+  public void testSerialize() throws Error.FormatError {
     prTestSerialize(Schema.PublicKey.Algorithm.Ed25519, 32);
     prTestSerialize(
         // compressed - 0x02 or 0x03 prefix byte, 32 bytes for X coordinate
@@ -33,7 +33,7 @@ public class SignatureTest {
   }
 
   @Test
-  public void testHex() throws Error.FormatError.InvalidKeySize {
+  public void testHex() throws Error.FormatError {
     prGenSigKeys(Schema.PublicKey.Algorithm.SECP256R1);
     prGenSigKeys(Schema.PublicKey.Algorithm.Ed25519);
   }
@@ -72,9 +72,22 @@ public class SignatureTest {
         () -> KeyPair.generate(Schema.PublicKey.Algorithm.Ed25519, "badkey".getBytes()));
   }
 
+  @Test
+  void testInvalidSepc256r1PublicKey() {
+    assertThrows(
+        Error.FormatError.InvalidKey.class,
+        () -> PublicKey.load(Schema.PublicKey.Algorithm.SECP256R1, "badkey".getBytes()));
+  }
+
+  @Test
+  void testInvalidEd25519PublicKey() {
+    assertThrows(
+        Error.FormatError.InvalidKey.class,
+        () -> PublicKey.load(Schema.PublicKey.Algorithm.Ed25519, "badkey".getBytes()));
+  }
+
   private static void prTestSerialize(
-      Schema.PublicKey.Algorithm algorithm, int expectedPublicKeyLength)
-      throws Error.FormatError.InvalidKeySize {
+      Schema.PublicKey.Algorithm algorithm, int expectedPublicKeyLength) throws Error.FormatError {
     byte[] seed = {1, 2, 3, 4};
     SecureRandom rng = new SecureRandom(seed);
 
@@ -126,8 +139,7 @@ public class SignatureTest {
     assertEquals(Right(null), token3.verify(root.getPublicKey()));
   }
 
-  private static void prGenSigKeys(Schema.PublicKey.Algorithm algorithm)
-      throws Error.FormatError.InvalidKeySize {
+  private static void prGenSigKeys(Schema.PublicKey.Algorithm algorithm) throws Error.FormatError {
     var keypair = KeyPair.generate(algorithm);
     var pubKey = keypair.getPublicKey();
     var privHexString = keypair.toHex();

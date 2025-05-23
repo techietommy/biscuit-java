@@ -18,7 +18,7 @@ import org.eclipse.biscuit.token.builder.Utils;
 
 public abstract class PublicKey {
   public interface Factory {
-    PublicKey load(byte[] bytes);
+    PublicKey load(byte[] bytes) throws Error.FormatError.InvalidKey;
   }
 
   public static final Factory DEFAULT_ED25519_FACTORY =
@@ -32,7 +32,7 @@ public abstract class PublicKey {
   private static final Set<Algorithm> SUPPORTED_ALGORITHMS =
       Set.of(Algorithm.Ed25519, Algorithm.SECP256R1);
 
-  public static PublicKey load(Algorithm algorithm, byte[] data) {
+  public static PublicKey load(Algorithm algorithm, byte[] data) throws Error.FormatError {
     if (algorithm == Algorithm.Ed25519) {
       return ed25519Factory.load(data);
     } else if (algorithm == Algorithm.SECP256R1) {
@@ -42,7 +42,7 @@ public abstract class PublicKey {
     }
   }
 
-  public static PublicKey load(Algorithm algorithm, String hex) {
+  public static PublicKey load(Algorithm algorithm, String hex) throws Error.FormatError {
     return load(algorithm, Utils.hexStringToByteArray(hex));
   }
 
@@ -59,8 +59,7 @@ public abstract class PublicKey {
     return publicKey.build();
   }
 
-  public static PublicKey deserialize(Schema.PublicKey pk)
-      throws Error.FormatError.DeserializationError {
+  public static PublicKey deserialize(Schema.PublicKey pk) throws Error.FormatError {
     if (!pk.hasAlgorithm() || !pk.hasKey() || !SUPPORTED_ALGORITHMS.contains(pk.getAlgorithm())) {
       throw new Error.FormatError.DeserializationError("Invalid public key");
     }

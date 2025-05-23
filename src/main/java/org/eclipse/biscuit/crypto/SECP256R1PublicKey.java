@@ -23,6 +23,8 @@ import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPublicKey;
 import org.bouncycastle.jce.ECNamedCurveTable;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.jce.spec.ECPublicKeySpec;
+import org.bouncycastle.math.ec.ECPoint;
+import org.eclipse.biscuit.error.Error;
 
 @SuppressWarnings("checkstyle:AbbreviationAsWordInName")
 class SECP256R1PublicKey extends PublicKey {
@@ -42,9 +44,15 @@ class SECP256R1PublicKey extends PublicKey {
     this.publicKey = publicKey;
   }
 
-  static SECP256R1PublicKey loadSECP256R1(byte[] data) {
+  static SECP256R1PublicKey loadSECP256R1(byte[] data) throws Error.FormatError.InvalidKey {
     var params = ECNamedCurveTable.getParameterSpec(CURVE);
-    var spec = new ECPublicKeySpec(params.getCurve().decodePoint(data), params);
+    ECPoint ecPoint;
+    try {
+      ecPoint = params.getCurve().decodePoint(data);
+    } catch (IllegalArgumentException e) {
+      throw new Error.FormatError.InvalidKey(e.getMessage());
+    }
+    var spec = new ECPublicKeySpec(ecPoint, params);
     return new SECP256R1PublicKey(
         new BCECPublicKey(SECP256R1KeyPair.ALGORITHM, spec, BouncyCastleProvider.CONFIGURATION));
   }
