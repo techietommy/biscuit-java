@@ -6,7 +6,6 @@
 package org.eclipse.biscuit.datalog;
 
 import biscuit.format.schema.Schema;
-import io.vavr.Tuple2;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -46,58 +45,56 @@ public final class Rule implements Serializable {
     return scopes;
   }
 
-  public Stream<Result<Tuple2<Origin, Fact>, Error>> apply(
-      final Supplier<Stream<Tuple2<Origin, Fact>>> factsSupplier,
+  public Stream<Result<Pair<Origin, Fact>, Error>> apply(
+      final Supplier<Stream<Pair<Origin, Fact>>> factsSupplier,
       Long ruleOrigin,
       SymbolTable symbolTable) {
     MatchedVariables variables = variablesSet();
 
     Combinator combinator = new Combinator(variables, this.body, factsSupplier, symbolTable);
-    Spliterator<Tuple2<Origin, Map<Long, Term>>> splitItr =
+    Spliterator<Pair<Origin, Map<Long, Term>>> splitItr =
         Spliterators.spliteratorUnknownSize(combinator, Spliterator.ORDERED);
-    Stream<Tuple2<Origin, Map<Long, Term>>> stream = StreamSupport.stream(splitItr, false);
+    Stream<Pair<Origin, Map<Long, Term>>> stream = StreamSupport.stream(splitItr, false);
 
-    return stream
-        .map(
-            t -> {
-              Origin origin = t._1;
-              Map<Long, Term> generatedVariables = t._2;
-              TemporarySymbolTable temporarySymbols = new TemporarySymbolTable(symbolTable);
-              for (Expression e : this.expressions) {
-                try {
-                  Term term = e.evaluate(generatedVariables, temporarySymbols);
+    return stream.flatMap(
+        t -> {
+          Origin origin = t._1;
+          Map<Long, Term> generatedVariables = t._2;
+          TemporarySymbolTable temporarySymbols = new TemporarySymbolTable(symbolTable);
+          for (Expression e : this.expressions) {
+            try {
+              Term term = e.evaluate(generatedVariables, temporarySymbols);
 
-                  if (term instanceof Term.Bool) {
-                    Term.Bool b = (Term.Bool) term;
-                    if (!b.value()) {
-                      return null;
-                    }
-                    // continue evaluating if true
-                  } else {
-                    return null;
-                  }
-                } catch (Error error) {
-                  return null;
+              if (term instanceof Term.Bool) {
+                Term.Bool b = (Term.Bool) term;
+                if (!b.value()) {
+                  return Stream.empty();
                 }
+                // continue evaluating if true
+              } else {
+                return Stream.empty();
               }
+            } catch (Error error) {
+              return Stream.empty();
+            }
+          }
 
-              Predicate p = this.head.clone();
-              for (int index = 0; index < p.terms().size(); index++) {
-                if (p.terms().get(index) instanceof Term.Variable) {
-                  Term.Variable var = (Term.Variable) p.terms().get(index);
-                  if (!generatedVariables.containsKey(var.value())) {
-                    // throw new Error("variables that appear in the head should appear in the body
-                    // as well");
-                    return Result.<Tuple2<Origin, Fact>, Error>err(new Error.InternalError());
-                  }
-                  p.terms().set(index, generatedVariables.get(var.value()));
-                }
+          Predicate p = this.head.clone();
+          for (int index = 0; index < p.terms().size(); index++) {
+            if (p.terms().get(index) instanceof Term.Variable) {
+              Term.Variable var = (Term.Variable) p.terms().get(index);
+              if (!generatedVariables.containsKey(var.value())) {
+                // throw new Error("variables that appear in the head should appear in the body
+                // as well");
+                return Stream.of(Result.<Pair<Origin, Fact>, Error>err(new Error.InternalError()));
               }
+              p.terms().set(index, generatedVariables.get(var.value()));
+            }
+          }
 
-              origin.add(ruleOrigin);
-              return Result.<Tuple2<Origin, Fact>, Error>ok(new Tuple2<>(origin, new Fact(p)));
-            })
-        .filter(Objects::nonNull);
+          origin.add(ruleOrigin);
+          return Stream.of(Result.<Pair<Origin, Fact>, Error>ok(new Pair<>(origin, new Fact(p))));
+        });
   }
 
   private MatchedVariables variablesSet() {
@@ -123,7 +120,7 @@ public final class Rule implements Serializable {
       return variables.checkExpressions(this.expressions, symbolTable).isPresent();
     }
 
-    Supplier<Stream<Tuple2<Origin, Fact>>> factsSupplier = () -> facts.stream(scope);
+    Supplier<Stream<Pair<Origin, Fact>>> factsSupplier = () -> facts.stream(scope);
     var stream = this.apply(factsSupplier, origin, symbolTable);
     var it = stream.iterator();
 
@@ -148,12 +145,12 @@ public final class Rule implements Serializable {
       return variables.checkExpressions(this.expressions, symbolTable).isPresent();
     }
 
-    Supplier<Stream<Tuple2<Origin, Fact>>> factsSupplier = () -> facts.stream(scope);
+    Supplier<Stream<Pair<Origin, Fact>>> factsSupplier = () -> facts.stream(scope);
     Combinator combinator = new Combinator(variables, this.body, factsSupplier, symbolTable);
     boolean found = false;
 
     for (Combinator it = combinator; it.hasNext(); ) {
-      Tuple2<Origin, Map<Long, Term>> t = it.next();
+      Pair<Origin, Map<Long, Term>> t = it.next();
       Map<Long, Term> generatedVariables = t._2;
       found = true;
 
