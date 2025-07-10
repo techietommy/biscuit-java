@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.eclipse.biscuit.crypto.BlockSignatureBuffer;
 import org.eclipse.biscuit.crypto.KeyDelegate;
 import org.eclipse.biscuit.crypto.KeyPair;
@@ -36,19 +37,16 @@ public class UnverifiedBiscuit {
   protected final List<Block> blocks;
   protected final SymbolTable symbolTable;
   protected final SerializedBiscuit serializedBiscuit;
-  protected final List<byte[]> revocationIds;
 
   UnverifiedBiscuit(
       Block authority,
       List<Block> blocks,
       SymbolTable symbolTable,
-      SerializedBiscuit serializedBiscuit,
-      List<byte[]> revocationIds) {
+      SerializedBiscuit serializedBiscuit) {
     this.authority = authority;
     this.blocks = blocks;
     this.symbolTable = symbolTable;
     this.serializedBiscuit = serializedBiscuit;
-    this.revocationIds = revocationIds;
   }
 
   /**
@@ -98,9 +96,7 @@ public class UnverifiedBiscuit {
     Block authority = t._1;
     ArrayList<Block> blocks = t._2;
 
-    List<byte[]> revocationIds = ser.revocationIdentifiers();
-
-    return new UnverifiedBiscuit(authority, blocks, symbolTable, ser, revocationIds);
+    return new UnverifiedBiscuit(authority, blocks, symbolTable, ser);
   }
 
   /**
@@ -139,7 +135,7 @@ public class UnverifiedBiscuit {
    * @return
    */
   public UnverifiedBiscuit attenuate(
-          org.eclipse.biscuit.token.builder.Block block, Algorithm algorithm) throws Error {
+      org.eclipse.biscuit.token.builder.Block block, Algorithm algorithm) throws Error {
     SecureRandom rng = new SecureRandom();
     KeyPair keypair = KeyPair.generate(algorithm, rng);
     SymbolTable builderSymbols = new SymbolTable(this.symbolTable);
@@ -147,9 +143,7 @@ public class UnverifiedBiscuit {
   }
 
   public UnverifiedBiscuit attenuate(
-      final SecureRandom rng,
-      final KeyPair keypair,
-      org.eclipse.biscuit.token.builder.Block block)
+      final SecureRandom rng, final KeyPair keypair, org.eclipse.biscuit.token.builder.Block block)
       throws Error {
     SymbolTable builderSymbols = new SymbolTable(this.symbolTable);
     return attenuate(rng, keypair, block.build(builderSymbols));
@@ -189,17 +183,22 @@ public class UnverifiedBiscuit {
     blocks.add(block);
     SerializedBiscuit container = containerRes.get();
 
-    List<byte[]> revocationIds = container.revocationIdentifiers();
-
-    return new UnverifiedBiscuit(
-        copiedBiscuit.authority, blocks, symbols, container, revocationIds);
+    return new UnverifiedBiscuit(copiedBiscuit.authority, blocks, symbols, container);
   }
 
   // FIXME: attenuate 3rd Party
 
   public List<RevocationIdentifier> revocationIdentifiers() {
-    return this.revocationIds.stream()
+    return this.serializedBiscuit.revocationIdentifiers().stream()
         .map(RevocationIdentifier::fromBytes)
+        .collect(Collectors.toList());
+  }
+
+  public List<Option<PublicKey>> externalPublicKeys() {
+    return Stream.<Option<PublicKey>>concat(
+            Stream.of(Option.none()),
+            this.serializedBiscuit.getBlocks().stream()
+                .map(b -> b.getExternalSignature().map(ExternalSignature::getKey)))
         .collect(Collectors.toList());
   }
 
@@ -235,6 +234,26 @@ public class UnverifiedBiscuit {
 
   public Option<Integer> getRootKeyId() {
     return this.serializedBiscuit.getRootKeyId();
+  }
+
+  public int blockCount() {
+    return 1 + blocks.size();
+  }
+
+  public Option<PublicKey> blockExternalKey(int index) {
+    if (index == 0) {
+      return authority.getExternalKey();
+    } else {
+      return blocks.get(index - 1).getExternalKey();
+    }
+  }
+
+  public List<PublicKey> blockPublicKeys(int index) {
+    if (index == 0) {
+      return authority.getPublicKeys();
+    } else {
+      return blocks.get(index - 1).getPublicKeys();
+    }
   }
 
   /** Generates a third party block request from a token */
@@ -304,9 +323,7 @@ public class UnverifiedBiscuit {
     }
     blocks.add(block);
 
-    List<byte[]> revocationIds = container.revocationIdentifiers();
-    return new UnverifiedBiscuit(
-        copiedBiscuit.authority, blocks, symbols, container, revocationIds);
+    return new UnverifiedBiscuit(copiedBiscuit.authority, blocks, symbols, container);
   }
 
   /** Prints a token's content */

@@ -172,13 +172,18 @@ public final class SerializedBiscuit {
       throw new Error.FormatError.DeserializationError("invalid proof");
     }
 
-    final Proof proof =
-        data.getProof().hasFinalSignature()
-            ? new Proof.FinalSignature(data.getProof().getFinalSignature().toByteArray())
-            : new Proof.NextSecret(
-                KeyPair.generate(
-                    authority.getKey().getAlgorithm(),
-                    data.getProof().getNextSecret().toByteArray()));
+    final Proof proof;
+    if (data.getProof().hasFinalSignature()) {
+      proof = new Proof.FinalSignature(data.getProof().getFinalSignature().toByteArray());
+    } else {
+      final Schema.PublicKey.Algorithm proofAlgorithm =
+          blocks.isEmpty()
+              ? authority.getKey().getAlgorithm()
+              : blocks.get(blocks.size() - 1).getKey().getAlgorithm();
+      proof =
+          new Proof.NextSecret(
+              KeyPair.generate(proofAlgorithm, data.getProof().getNextSecret().toByteArray()));
+    }
 
     Option<Integer> rootKeyId =
         data.hasRootKeyId() ? Option.some(data.getRootKeyId()) : Option.none();
