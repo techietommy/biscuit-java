@@ -43,10 +43,7 @@ public final class Biscuit {
     this.rootKeyId = Option.none();
   }
 
-  public Biscuit(
-      final SecureRandom rng,
-      final Signer root,
-      Option<Integer> rootKeyId) {
+  public Biscuit(final SecureRandom rng, final Signer root, Option<Integer> rootKeyId) {
     this.rng = rng;
     this.root = root;
     this.context = "";
@@ -72,18 +69,15 @@ public final class Biscuit {
     this.scopes = block.scopes();
   }
 
-  public Biscuit addAuthorityFact(Fact f)
-      throws Error.Language {
+  public Biscuit addAuthorityFact(Fact f) throws Error.Language {
     f.validate();
     this.facts.add(f);
     return this;
   }
 
   public Biscuit addAuthorityFact(String s) throws Error.Parser, Error.Language {
-    Either<
-            org.eclipse.biscuit.token.builder.parser.Error,
-            Tuple2<String, Fact>>
-        res = Parser.fact(s);
+    Either<org.eclipse.biscuit.token.builder.parser.Error, Tuple2<String, Fact>> res =
+        Parser.fact(s);
 
     if (res.isLeft()) {
       throw new Error.Parser(res.getLeft());
@@ -100,10 +94,8 @@ public final class Biscuit {
   }
 
   public Biscuit addAuthorityRule(String s) throws Error.Parser {
-    Either<
-            org.eclipse.biscuit.token.builder.parser.Error,
-            Tuple2<String, Rule>>
-        res = Parser.rule(s);
+    Either<org.eclipse.biscuit.token.builder.parser.Error, Tuple2<String, Rule>> res =
+        Parser.rule(s);
 
     if (res.isLeft()) {
       throw new Error.Parser(res.getLeft());
@@ -120,10 +112,8 @@ public final class Biscuit {
   }
 
   public Biscuit addAuthorityCheck(String s) throws Error.Parser {
-    Either<
-            org.eclipse.biscuit.token.builder.parser.Error,
-            Tuple2<String, Check>>
-        res = Parser.check(s);
+    Either<org.eclipse.biscuit.token.builder.parser.Error, Tuple2<String, Check>> res =
+        Parser.check(s);
 
     if (res.isLeft()) {
       throw new Error.Parser(res.getLeft());

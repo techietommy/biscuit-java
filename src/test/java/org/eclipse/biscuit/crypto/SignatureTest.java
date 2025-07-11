@@ -16,9 +16,9 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.Security;
 import java.security.SignatureException;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.eclipse.biscuit.error.Error;
 import org.eclipse.biscuit.token.Biscuit;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.jupiter.api.Test;
 
 /**

@@ -11,7 +11,6 @@ import java.security.SecureRandom;
 import java.security.Security;
 import java.security.Signature;
 import java.security.SignatureException;
-import org.eclipse.biscuit.token.builder.Utils;
 import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey;
 import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPublicKey;
 import org.bouncycastle.jce.ECNamedCurveTable;
@@ -20,6 +19,7 @@ import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec;
 import org.bouncycastle.jce.spec.ECPrivateKeySpec;
 import org.bouncycastle.jce.spec.ECPublicKeySpec;
 import org.bouncycastle.util.BigIntegers;
+import org.eclipse.biscuit.token.builder.Utils;
 
 @SuppressWarnings("checkstyle:AbbreviationAsWordInName")
 final class SECP256R1KeyPair extends KeyPair {

@@ -37,10 +37,10 @@ import org.eclipse.biscuit.error.FailedCheck;
 import org.eclipse.biscuit.error.LogicError;
 import org.eclipse.biscuit.token.builder.Check;
 import org.eclipse.biscuit.token.builder.Expression;
-import org.eclipse.biscuit.token.builder.Term;
-import org.eclipse.biscuit.token.builder.Utils;
 import org.eclipse.biscuit.token.builder.Fact;
 import org.eclipse.biscuit.token.builder.Rule;
+import org.eclipse.biscuit.token.builder.Term;
+import org.eclipse.biscuit.token.builder.Utils;
 import org.eclipse.biscuit.token.builder.parser.Parser;
 
 /** Token verification class */
@@ -142,13 +142,11 @@ public final class Authorizer {
 
       for (org.eclipse.biscuit.datalog.Fact fact : token.authority.getFacts()) {
         org.eclipse.biscuit.datalog.Fact convertedFact =
-            Fact.convertFrom(fact, token.symbolTable)
-                .convert(this.symbolTable);
+            Fact.convertFrom(fact, token.symbolTable).convert(this.symbolTable);
         world.addFact(new Origin(0), convertedFact);
       }
       for (org.eclipse.biscuit.datalog.Rule rule : token.authority.getRules()) {
-        Rule locRule =
-            Rule.convertFrom(rule, token.symbolTable);
+        Rule locRule = Rule.convertFrom(rule, token.symbolTable);
         org.eclipse.biscuit.datalog.Rule convertedRule = locRule.convert(this.symbolTable);
 
         Either<String, Rule> res = locRule.validateVariables();
@@ -176,18 +174,15 @@ public final class Authorizer {
 
         for (org.eclipse.biscuit.datalog.Fact fact : block.getFacts()) {
           org.eclipse.biscuit.datalog.Fact convertedFact =
-              Fact.convertFrom(fact, blockSymbolTable)
-                  .convert(this.symbolTable);
+              Fact.convertFrom(fact, blockSymbolTable).convert(this.symbolTable);
           world.addFact(new Origin(i + 1), convertedFact);
         }
 
         for (org.eclipse.biscuit.datalog.Rule rule : block.getRules()) {
-          Rule syRole =
-              Rule.convertFrom(rule, blockSymbolTable);
+          Rule syRole = Rule.convertFrom(rule, blockSymbolTable);
           org.eclipse.biscuit.datalog.Rule convertedRule = syRole.convert(this.symbolTable);
 
-          Either<String, Rule> res =
-              syRole.validateVariables();
+          Either<String, Rule> res = syRole.validateVariables();
           if (res.isLeft()) {
             throw new Error.FailedLogic(
                 new LogicError.InvalidBlockRule(0, this.symbolTable.formatRule(convertedRule)));
@@ -223,8 +218,7 @@ public final class Authorizer {
         result = Parser.datalogComponents(s);
 
     if (result.isLeft()) {
-      Map<Integer, List<org.eclipse.biscuit.token.builder.parser.Error>> errors =
-          result.getLeft();
+      Map<Integer, List<org.eclipse.biscuit.token.builder.parser.Error>> errors = result.getLeft();
       Map<Integer, List<Error>> errorMap = new HashMap<>();
       for (Map.Entry<Integer, List<org.eclipse.biscuit.token.builder.parser.Error>> entry :
           errors.entrySet()) {
@@ -264,10 +258,8 @@ public final class Authorizer {
   }
 
   public Authorizer addFact(String s) throws Error.Parser {
-    Either<
-            org.eclipse.biscuit.token.builder.parser.Error,
-            Tuple2<String, Fact>>
-        res = Parser.fact(s);
+    Either<org.eclipse.biscuit.token.builder.parser.Error, Tuple2<String, Fact>> res =
+        Parser.fact(s);
 
     if (res.isLeft()) {
       throw new Error.Parser(res.getLeft());
@@ -288,10 +280,8 @@ public final class Authorizer {
   }
 
   public Authorizer addRule(String s) throws Error.Parser {
-    Either<
-            org.eclipse.biscuit.token.builder.parser.Error,
-            Tuple2<String, Rule>>
-        res = Parser.rule(s);
+    Either<org.eclipse.biscuit.token.builder.parser.Error, Tuple2<String, Rule>> res =
+        Parser.rule(s);
 
     if (res.isLeft()) {
       throw new Error.Parser(res.getLeft());
@@ -313,10 +303,8 @@ public final class Authorizer {
   }
 
   public Authorizer addCheck(String s) throws Error.Parser {
-    Either<
-            org.eclipse.biscuit.token.builder.parser.Error,
-            Tuple2<String, Check>>
-        res = Parser.check(s);
+    Either<org.eclipse.biscuit.token.builder.parser.Error, Tuple2<String, Check>> res =
+        Parser.check(s);
 
     if (res.isLeft()) {
       throw new Error.Parser(res.getLeft());
@@ -410,16 +398,13 @@ public final class Authorizer {
     return this;
   }
 
-  public Set<Fact> query(
-      Rule query) throws Error {
+  public Set<Fact> query(Rule query) throws Error {
     return this.query(query, new RunLimits());
   }
 
   public Set<Fact> query(String s) throws Error {
-    Either<
-            org.eclipse.biscuit.token.builder.parser.Error,
-            Tuple2<String, Rule>>
-        res = Parser.rule(s);
+    Either<org.eclipse.biscuit.token.builder.parser.Error, Tuple2<String, Rule>> res =
+        Parser.rule(s);
 
     if (res.isLeft()) {
       throw new Error.Parser(res.getLeft());
@@ -430,8 +415,7 @@ public final class Authorizer {
     return query(t._2);
   }
 
-  public Set<Fact> query(
-          Rule query, RunLimits limits) throws Error {
+  public Set<Fact> query(Rule query, RunLimits limits) throws Error {
     world.run(limits, symbolTable);
 
     org.eclipse.biscuit.datalog.Rule rule = query.convert(symbolTable);
@@ -446,7 +430,7 @@ public final class Authorizer {
     Set<Fact> s = new HashSet<>();
 
     for (Iterator<org.eclipse.biscuit.datalog.Fact> it = facts.stream().iterator();
-         it.hasNext(); ) {
+        it.hasNext(); ) {
       org.eclipse.biscuit.datalog.Fact f = it.next();
       s.add(Fact.convertFrom(f, symbolTable));
     }
@@ -454,12 +438,9 @@ public final class Authorizer {
     return s;
   }
 
-  public Set<Fact> query(String s, RunLimits limits)
-      throws Error {
-    Either<
-            org.eclipse.biscuit.token.builder.parser.Error,
-            Tuple2<String, Rule>>
-        res = Parser.rule(s);
+  public Set<Fact> query(String s, RunLimits limits) throws Error {
+    Either<org.eclipse.biscuit.token.builder.parser.Error, Tuple2<String, Rule>> res =
+        Parser.rule(s);
 
     if (res.isLeft()) {
       throw new Error.Parser(res.getLeft());
@@ -529,9 +510,7 @@ public final class Authorizer {
       for (int j = 0; j < token.authority.getChecks().size(); j++) {
         boolean successful = false;
 
-        Check c =
-            Check.convertFrom(
-                token.authority.getChecks().get(j), token.symbolTable);
+        Check c = Check.convertFrom(token.authority.getChecks().get(j), token.symbolTable);
         org.eclipse.biscuit.datalog.Check check = c.convert(symbolTable);
 
         for (int k = 0; k < check.queries().size(); k++) {
@@ -608,9 +587,7 @@ public final class Authorizer {
         for (int j = 0; j < b.getChecks().size(); j++) {
           boolean successful = false;
 
-          Check c =
-              Check.convertFrom(
-                  b.getChecks().get(j), blockSymbolTable);
+          Check c = Check.convertFrom(b.getChecks().get(j), blockSymbolTable);
           org.eclipse.biscuit.datalog.Check check = c.convert(symbolTable);
 
           for (int k = 0; k < check.queries().size(); k++) {

@@ -34,8 +34,7 @@ public final class Biscuit extends UnverifiedBiscuit {
    * @param root root private key
    * @return
    */
-  public static org.eclipse.biscuit.token.builder.Biscuit builder(
-      final Signer root) {
+  public static org.eclipse.biscuit.token.builder.Biscuit builder(final Signer root) {
     return new org.eclipse.biscuit.token.builder.Biscuit(new SecureRandom(), root);
   }
 
@@ -61,9 +60,7 @@ public final class Biscuit extends UnverifiedBiscuit {
    * @return
    */
   public static org.eclipse.biscuit.token.builder.Biscuit builder(
-      final SecureRandom rng,
-      final Signer root,
-      final Option<Integer> rootKeyId) {
+      final SecureRandom rng, final Signer root, final Option<Integer> rootKeyId) {
     return new org.eclipse.biscuit.token.builder.Biscuit(rng, root, rootKeyId);
   }
 
@@ -75,10 +72,7 @@ public final class Biscuit extends UnverifiedBiscuit {
    * @param authority authority block
    * @return Biscuit
    */
-  public static Biscuit make(
-      final SecureRandom rng,
-      final Signer root,
-      final Block authority)
+  public static Biscuit make(final SecureRandom rng, final Signer root, final Block authority)
       throws Error.FormatError {
     return Biscuit.make(rng, root, Option.none(), authority);
   }
@@ -92,10 +86,7 @@ public final class Biscuit extends UnverifiedBiscuit {
    * @return Biscuit
    */
   public static Biscuit make(
-      final SecureRandom rng,
-      final Signer root,
-      final Integer rootKeyId,
-      final Block authority)
+      final SecureRandom rng, final Signer root, final Integer rootKeyId, final Block authority)
       throws Error.FormatError {
     return Biscuit.make(rng, root, Option.of(rootKeyId), authority);
   }
@@ -315,9 +306,7 @@ public final class Biscuit extends UnverifiedBiscuit {
   }
 
   public Biscuit attenuate(
-      final SecureRandom rng,
-      final KeyPair keypair,
-      org.eclipse.biscuit.token.builder.Block block)
+      final SecureRandom rng, final KeyPair keypair, org.eclipse.biscuit.token.builder.Block block)
       throws Error {
     SymbolTable builderSymbols = new SymbolTable(this.symbolTable);
     return attenuate(rng, keypair, block.build(builderSymbols));

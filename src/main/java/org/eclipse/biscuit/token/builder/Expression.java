@@ -14,8 +14,7 @@ import org.eclipse.biscuit.datalog.SymbolTable;
 
 public abstract class Expression {
 
-  public final org.eclipse.biscuit.datalog.expressions.Expression convert(
-      SymbolTable symbolTable) {
+  public final org.eclipse.biscuit.datalog.expressions.Expression convert(SymbolTable symbolTable) {
     ArrayList<org.eclipse.biscuit.datalog.expressions.Op> ops = new ArrayList<>();
     this.toOpcodes(symbolTable, ops);
 
@@ -23,7 +22,7 @@ public abstract class Expression {
   }
 
   public static Expression convertFrom(
-          org.eclipse.biscuit.datalog.expressions.Expression e, SymbolTable symbolTable) {
+      org.eclipse.biscuit.datalog.expressions.Expression e, SymbolTable symbolTable) {
     ArrayList<Op> ops = new ArrayList<>();
     Deque<Expression> stack = new ArrayDeque<Expression>(16);
     for (org.eclipse.biscuit.datalog.expressions.Op op : e.getOps()) {
