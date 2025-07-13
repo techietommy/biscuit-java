@@ -14,22 +14,15 @@ import biscuit.format.schema.Schema;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.security.Security;
 import java.security.SignatureException;
 import org.eclipse.biscuit.error.Error;
 import org.eclipse.biscuit.token.Biscuit;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.jupiter.api.Test;
 
 /**
  * @serial exclude
  */
 public class SignatureTest {
-
-  static {
-    Security.addProvider(new BouncyCastleProvider());
-  }
-
   @Test
   public void testSerialize() {
     prTestSerialize(Schema.PublicKey.Algorithm.Ed25519, 32);
