@@ -15,6 +15,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.SignatureException;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.eclipse.biscuit.error.Error;
 import org.eclipse.biscuit.token.Biscuit;
 import org.junit.jupiter.api.Test;

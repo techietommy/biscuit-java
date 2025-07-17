@@ -73,7 +73,7 @@ public final class Scope {
   }
 
   public static Scope convertFrom(
-          org.eclipse.biscuit.datalog.Scope scope, SymbolTable symbolTable) {
+      org.eclipse.biscuit.datalog.Scope scope, SymbolTable symbolTable) {
     switch (scope.kind()) {
       case Authority:
         return new Scope(Kind.Authority);

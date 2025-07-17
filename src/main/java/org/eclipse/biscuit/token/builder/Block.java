@@ -51,10 +51,8 @@ public final class Block {
   }
 
   public Block addFact(String s) throws Error.Parser {
-    Either<
-            org.eclipse.biscuit.token.builder.parser.Error,
-            Tuple2<String, Fact>>
-        res = Parser.fact(s);
+    Either<org.eclipse.biscuit.token.builder.parser.Error, Tuple2<String, Fact>> res =
+        Parser.fact(s);
 
     if (res.isLeft()) {
       throw new Error.Parser(res.getLeft());
@@ -71,10 +69,8 @@ public final class Block {
   }
 
   public Block addRule(String s) throws Error.Parser {
-    Either<
-            org.eclipse.biscuit.token.builder.parser.Error,
-            Tuple2<String, Rule>>
-        res = Parser.rule(s);
+    Either<org.eclipse.biscuit.token.builder.parser.Error, Tuple2<String, Rule>> res =
+        Parser.rule(s);
 
     if (res.isLeft()) {
       throw new Error.Parser(res.getLeft());
@@ -91,10 +87,8 @@ public final class Block {
   }
 
   public Block addCheck(String s) throws Error.Parser {
-    Either<
-            org.eclipse.biscuit.token.builder.parser.Error,
-            Tuple2<String, Check>>
-        res = Parser.check(s);
+    Either<org.eclipse.biscuit.token.builder.parser.Error, Tuple2<String, Check>> res =
+        Parser.check(s);
 
     if (res.isLeft()) {
       throw new Error.Parser(res.getLeft());

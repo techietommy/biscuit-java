@@ -39,7 +39,7 @@ public final class Predicate implements Cloneable {
   }
 
   public static Predicate convertFrom(
-          org.eclipse.biscuit.datalog.Predicate p, SymbolTable symbolTable) {
+      org.eclipse.biscuit.datalog.Predicate p, SymbolTable symbolTable) {
     String name = symbolTable.formatSymbol((int) p.name());
     List<Term> terms = new ArrayList<>();
     for (org.eclipse.biscuit.datalog.Term t : p.terms()) {

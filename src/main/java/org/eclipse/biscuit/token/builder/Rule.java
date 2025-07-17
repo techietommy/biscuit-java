@@ -173,8 +173,7 @@ public final class Rule implements Cloneable {
     Rule r = this.clone();
     r.applyVariables();
     ArrayList<org.eclipse.biscuit.datalog.Predicate> body = new ArrayList<>();
-    ArrayList<org.eclipse.biscuit.datalog.expressions.Expression> expressions =
-        new ArrayList<>();
+    ArrayList<org.eclipse.biscuit.datalog.expressions.Expression> expressions = new ArrayList<>();
     ArrayList<org.eclipse.biscuit.datalog.Scope> scopes = new ArrayList<>();
 
     for (Predicate p : r.body) {

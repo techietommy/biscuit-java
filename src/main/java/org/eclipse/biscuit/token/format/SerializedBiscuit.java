@@ -48,8 +48,7 @@ public final class SerializedBiscuit {
    * @param slice
    * @return
    */
-  public static SerializedBiscuit fromBytes(
-      byte[] slice, PublicKey root)
+  public static SerializedBiscuit fromBytes(byte[] slice, PublicKey root)
       throws NoSuchAlgorithmException, SignatureException, InvalidKeyException, Error {
     try {
       Schema.Biscuit data = Schema.Biscuit.parseFrom(slice);
@@ -87,8 +86,7 @@ public final class SerializedBiscuit {
     }
   }
 
-  static SerializedBiscuit fromBytesInner(
-      Schema.Biscuit data, PublicKey root)
+  static SerializedBiscuit fromBytesInner(Schema.Biscuit data, PublicKey root)
       throws NoSuchAlgorithmException, SignatureException, InvalidKeyException, Error {
     SerializedBiscuit b = SerializedBiscuit.deserialize(data);
     if (data.hasRootKeyId()) {
@@ -151,8 +149,7 @@ public final class SerializedBiscuit {
         external =
             Option.some(
                 new ExternalSignature(
-                    PublicKey.deserialize(ex.getPublicKey()),
-                    ex.getSignature().toByteArray()));
+                    PublicKey.deserialize(ex.getPublicKey()), ex.getSignature().toByteArray()));
       }
       blocks.add(
           new SignedBlock(
@@ -250,9 +247,7 @@ public final class SerializedBiscuit {
   }
 
   public static Either<Error.FormatError, SerializedBiscuit> make(
-      final KeyPair root,
-      final Block authority,
-      final KeyPair next) {
+      final KeyPair root, final Block authority, final KeyPair next) {
 
     return make(root, Option.none(), authority, next);
   }
@@ -280,9 +275,7 @@ public final class SerializedBiscuit {
   }
 
   public Either<Error.FormatError, SerializedBiscuit> append(
-      final KeyPair next,
-      final Block newBlock,
-      Option<ExternalSignature> externalSignature) {
+      final KeyPair next, final Block newBlock, Option<ExternalSignature> externalSignature) {
     if (this.proof.isSealed()) {
       return Left(new Error.FormatError.SerializationError("the token is sealed"));
     }
@@ -320,8 +313,7 @@ public final class SerializedBiscuit {
   public Either<Error, Void> verify(PublicKey root)
       throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
     PublicKey currentKey = root;
-    Either<Error, PublicKey> res =
-        verifyBlockSignature(this.authority, currentKey);
+    Either<Error, PublicKey> res = verifyBlockSignature(this.authority, currentKey);
     if (res.isRight()) {
       currentKey = res.get();
     } else {
@@ -380,8 +372,7 @@ public final class SerializedBiscuit {
     }
   }
 
-  static Either<Error, PublicKey> verifyBlockSignature(
-      SignedBlock signedBlock, PublicKey publicKey)
+  static Either<Error, PublicKey> verifyBlockSignature(SignedBlock signedBlock, PublicKey publicKey)
       throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
 
     PublicKey nextKey = signedBlock.getKey();
@@ -422,8 +413,7 @@ public final class SerializedBiscuit {
   }
 
   public Tuple2<Block, ArrayList<Block>> extractBlocks(SymbolTable symbolTable) throws Error {
-    ArrayList<Option<PublicKey>> blockExternalKeys =
-        new ArrayList<>();
+    ArrayList<Option<PublicKey>> blockExternalKeys = new ArrayList<>();
     Either<Error.FormatError, Block> authRes =
         Block.fromBytes(this.authority.getBlock(), Option.none());
     if (authRes.isLeft()) {

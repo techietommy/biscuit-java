@@ -6,13 +6,13 @@
 package org.eclipse.biscuit.crypto;
 
 import java.security.SecureRandom;
-import org.eclipse.biscuit.token.builder.Utils;
 import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
 import org.bouncycastle.crypto.generators.Ed25519KeyPairGenerator;
 import org.bouncycastle.crypto.params.Ed25519KeyGenerationParameters;
 import org.bouncycastle.crypto.params.Ed25519PrivateKeyParameters;
 import org.bouncycastle.crypto.params.Ed25519PublicKeyParameters;
 import org.bouncycastle.crypto.signers.Ed25519Signer;
+import org.eclipse.biscuit.token.builder.Utils;
 
 final class Ed25519KeyPair extends KeyPair {
   public static final int SIGNATURE_LENGTH = 64;
