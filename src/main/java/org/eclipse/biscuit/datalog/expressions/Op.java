@@ -363,7 +363,7 @@ public abstract class Op {
           break;
         case NotEqual:
           if (right instanceof Term.Bool && left instanceof Term.Bool) {
-            stack.push(new Term.Bool(((Term.Bool) left).value() == ((Term.Bool) right).value()));
+            stack.push(new Term.Bool(((Term.Bool) left).value() != ((Term.Bool) right).value()));
           }
           if (right instanceof Term.Integer && left instanceof Term.Integer) {
             stack.push(
