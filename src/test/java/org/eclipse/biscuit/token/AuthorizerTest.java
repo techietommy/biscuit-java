@@ -11,11 +11,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import biscuit.format.schema.Schema;
 import java.security.SecureRandom;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import org.eclipse.biscuit.crypto.KeyPair;
+import org.eclipse.biscuit.datalog.RunLimits;
 import org.eclipse.biscuit.error.Error;
 import org.eclipse.biscuit.error.Error.Parser;
 import org.eclipse.biscuit.token.builder.Expression;
@@ -23,6 +25,7 @@ import org.eclipse.biscuit.token.builder.Term;
 import org.junit.jupiter.api.Test;
 
 public class AuthorizerTest {
+  final RunLimits runLimits = new RunLimits(500, 100, Duration.ofMillis(500));
 
   @Test
   public void testAuthorizerPolicy() throws Parser {
@@ -102,7 +105,7 @@ public class AuthorizerTest {
     String datalog = String.join(";", Arrays.asList(l0, l1, l2));
     authorizer.addDatalog(datalog);
 
-    assertDoesNotThrow(() -> authorizer.authorize());
+    assertDoesNotThrow(() -> authorizer.authorize(runLimits));
 
     Term emailTerm = queryFirstResult(authorizer, "right($address) <- email($address)");
     assertEquals("bob@example.com", ((Term.Str) emailTerm).getValue());
