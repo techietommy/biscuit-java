@@ -87,7 +87,7 @@ final class SECP256R1KeyPair extends KeyPair {
 
   @Override
   public byte[] toBytes() {
-    return BigIntegers.asUnsignedByteArray(privateKey.getD());
+    return BigIntegers.asUnsignedByteArray(BUFFER_SIZE, privateKey.getD());
   }
 
   @Override
