@@ -26,6 +26,8 @@ import org.eclipse.biscuit.crypto.PublicKey;
 import org.eclipse.biscuit.datalog.SchemaVersion;
 import org.eclipse.biscuit.datalog.SymbolTable;
 import org.eclipse.biscuit.error.Error;
+import org.eclipse.biscuit.error.LogicError;
+import org.eclipse.biscuit.error.Result;
 import org.eclipse.biscuit.token.builder.parser.Parser;
 
 public final class Block {
@@ -54,6 +56,18 @@ public final class Block {
       throw new Error.Parser(res.getErr());
     }
     return addFact(res.getOk()._2);
+  }
+
+  public Result<Block, Error.FailedLogic> addRule(Rule rule, boolean validate) {
+    if (validate) {
+      var valid = rule.validateVariables();
+      if (valid.isErr()) {
+        return Result.err(
+            new Error.FailedLogic(new LogicError.InvalidBlockRule(0, valid.getErr())));
+      }
+    }
+    this.rules.add(rule);
+    return Result.ok(this);
   }
 
   public Block addRule(Rule rule) {

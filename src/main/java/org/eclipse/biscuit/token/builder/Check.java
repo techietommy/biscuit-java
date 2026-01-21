@@ -24,8 +24,14 @@ public final class Check {
   public Check(org.eclipse.biscuit.datalog.Check.Kind kind, Rule query) {
     this.kind = kind;
 
+    // Checks are queries that match facts, not rules that generate facts.
+    // Replace the rule's head with a placeholder predicate since checks only use the body,
+    // expressions, and scopes.
+    Rule q =
+        new Rule(
+            new Predicate("query", new ArrayList<>()), query.body, query.expressions, query.scopes);
     ArrayList<Rule> r = new ArrayList<>();
-    r.add(query);
+    r.add(q);
     queries = r;
   }
 
