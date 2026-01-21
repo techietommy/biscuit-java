@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.security.SecureRandom;
 import org.bouncycastle.crypto.digests.SHA256Digest;
 import org.bouncycastle.crypto.signers.ECDSASigner;
+import org.bouncycastle.crypto.signers.HMacDSAKCalculator;
 import org.bouncycastle.crypto.signers.StandardDSAEncoding;
 import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey;
 import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPublicKey;
@@ -67,14 +68,32 @@ final class SECP256R1KeyPair extends KeyPair {
     this.publicKey = publicKey;
   }
 
+  /// By default sign message digests with a deterministic k
+  /// computed using the algorithm described in [RFC6979 § 3.2].
+  ///
+  /// [RFC6979 § 3.2]: https://tools.ietf.org/html/rfc6979#section-3
+  ///
+  /// Although deterministic ECDSA signing is typically slower than
+  /// signing with an RNG, it prevents accidental nonce-reuse due to
+  /// a weak RNG.
   @Override
   public byte[] sign(byte[] data) {
+    return sign(data, true);
+  }
+
+  public byte[] sign(byte[] data, boolean deterministicNonce) {
     var digest = new SHA256Digest();
     digest.update(data, 0, data.length);
     var hash = new byte[digest.getDigestSize()];
     digest.doFinal(hash, 0);
 
-    var signer = new ECDSASigner();
+    ECDSASigner signer;
+    if (deterministicNonce) {
+      signer = new ECDSASigner(new HMacDSAKCalculator(new SHA256Digest()));
+    } else {
+      signer = new ECDSASigner();
+    }
+
     signer.init(true, privateKey.engineGetKeyParameters());
     var sig = signer.generateSignature(hash);
 
