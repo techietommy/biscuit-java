@@ -21,7 +21,6 @@ import org.eclipse.biscuit.crypto.KeyDelegate;
 import org.eclipse.biscuit.crypto.KeyPair;
 import org.eclipse.biscuit.crypto.PublicKey;
 import org.eclipse.biscuit.datalog.Check;
-import org.eclipse.biscuit.datalog.Pair;
 import org.eclipse.biscuit.datalog.SymbolTable;
 import org.eclipse.biscuit.error.Error;
 import org.eclipse.biscuit.token.format.ExternalSignature;
@@ -92,11 +91,8 @@ public class UnverifiedBiscuit {
    */
   private static UnverifiedBiscuit fromSerializedBiscuit(
       SerializedBiscuit ser, SymbolTable symbolTable) throws Error {
-    Pair<Block, ArrayList<Block>> t = ser.extractBlocks(symbolTable);
-    Block authority = t._1;
-    ArrayList<Block> blocks = t._2;
-
-    return new UnverifiedBiscuit(authority, blocks, symbolTable, ser);
+    var t = ser.extractBlocks(symbolTable);
+    return new UnverifiedBiscuit(t._1, t._2, symbolTable, ser);
   }
 
   /**
@@ -201,15 +197,12 @@ public class UnverifiedBiscuit {
         .collect(Collectors.toList());
   }
 
+  public List<Block> getBlocks() {
+    return Stream.concat(Stream.of(authority), blocks.stream()).collect(Collectors.toList());
+  }
+
   public List<List<Check>> getChecks() {
-    ArrayList<List<Check>> l = new ArrayList<>();
-    l.add(new ArrayList<>(this.authority.getChecks()));
-
-    for (Block b : this.blocks) {
-      l.add(new ArrayList<>(b.getChecks()));
-    }
-
-    return l;
+    return getBlocks().stream().map(Block::getChecks).collect(Collectors.toList());
   }
 
   public List<Optional<String>> getContext() {

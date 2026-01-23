@@ -14,6 +14,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -489,7 +490,7 @@ public final class SerializedBiscuit {
     return Result.ok(signedBlock.getKey());
   }
 
-  public Pair<Block, ArrayList<Block>> extractBlocks(SymbolTable symbolTable) throws Error {
+  public Pair<Block, List<Block>> extractBlocks(SymbolTable symbolTable) throws Error {
     ArrayList<Optional<org.eclipse.biscuit.crypto.PublicKey>> blockExternalKeys = new ArrayList<>();
     var authRes = Block.fromBytes(this.authority.getBlock(), Optional.empty());
     if (authRes.isErr()) {
@@ -534,7 +535,7 @@ public final class SerializedBiscuit {
       blocks.add(block);
     }
 
-    return new Pair<>(authority, blocks);
+    return new Pair<>(authority, Collections.unmodifiableList(blocks));
   }
 
   public Result<Void, Error> seal()
