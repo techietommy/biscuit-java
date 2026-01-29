@@ -159,10 +159,7 @@ public class BuilderTest {
             Utils.pred("nbf", List.of(Utils.var("1"))));
     List<Expression> expressions =
         List.of(
-            new Expression.Binary(
-                Expression.Op.LessOrEqual,
-                new Expression.Value(Utils.var("1")),
-                new Expression.Value(Utils.var("0"))));
+            new Expression.Binary(Expression.OpCode.LessOrEqual, Utils.var("1"), Utils.var("0")));
     List<org.eclipse.biscuit.token.builder.Scope> scopes = new ArrayList<>();
     var nbfRule = new Rule(head, body, expressions, scopes);
     Check builtCheck = Utils.check(nbfRule);
@@ -183,10 +180,7 @@ public class BuilderTest {
             Utils.pred("nbf", List.of(Utils.var("1"))));
     List<Expression> expressions =
         List.of(
-            new Expression.Binary(
-                Expression.Op.LessOrEqual,
-                new Expression.Value(Utils.var("1")),
-                new Expression.Value(Utils.var("0"))));
+            new Expression.Binary(Expression.OpCode.LessOrEqual, Utils.var("1"), Utils.var("0")));
     List<org.eclipse.biscuit.token.builder.Scope> scopes = new ArrayList<>();
     var nbfRule = new Rule(head, body, expressions, scopes);
     Block authorityBuilder = new Block();
