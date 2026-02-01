@@ -14,18 +14,23 @@ import biscuit.format.schema.Schema;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import org.eclipse.biscuit.crypto.KeyPair;
 import org.eclipse.biscuit.datalog.SymbolTable;
 import org.eclipse.biscuit.error.Error;
 import org.eclipse.biscuit.token.Biscuit;
 import org.eclipse.biscuit.token.builder.Block;
+import org.eclipse.biscuit.token.builder.Check;
 import org.eclipse.biscuit.token.builder.Expression;
+import org.eclipse.biscuit.token.builder.Rule;
 import org.eclipse.biscuit.token.builder.Term;
 import org.eclipse.biscuit.token.builder.Utils;
+import org.eclipse.biscuit.token.builder.parser.Parser;
 import org.junit.jupiter.api.Test;
 
 public class BuilderTest {
@@ -142,5 +147,49 @@ public class BuilderTest {
         System.identityHashCode(someBytes),
         System.identityHashCode(term.getValue()),
         "different objects");
+  }
+
+  @Test
+  public void testCheckOnlyIncludesQuery() {
+    // Built `not_before` check:
+    var head = Utils.pred("nbf", List.of(Utils.var("0"), Utils.var("1")));
+    var body =
+        List.of(
+            Utils.pred("time", List.of(Utils.var("0"))),
+            Utils.pred("nbf", List.of(Utils.var("1"))));
+    List<Expression> expressions =
+        List.of(
+            new Expression.Binary(
+                Expression.Op.LessOrEqual,
+                new Expression.Value(Utils.var("1")),
+                new Expression.Value(Utils.var("0"))));
+    List<org.eclipse.biscuit.token.builder.Scope> scopes = new ArrayList<>();
+    var nbfRule = new Rule(head, body, expressions, scopes);
+    Check builtCheck = Utils.check(nbfRule);
+
+    // Parsed `not_before` check:
+    var res = Parser.check("check if time($0), nbf($1), $1 <= $0");
+
+    assertEquals(builtCheck, res.getOk()._2);
+  }
+
+  @Test
+  public void testInvalidRuleFails() {
+    // Head must not include variables that are not in the body
+    var head = Utils.pred("nbf", List.of(Utils.var("x")));
+    var body =
+        List.of(
+            Utils.pred("time", List.of(Utils.var("0"))),
+            Utils.pred("nbf", List.of(Utils.var("1"))));
+    List<Expression> expressions =
+        List.of(
+            new Expression.Binary(
+                Expression.Op.LessOrEqual,
+                new Expression.Value(Utils.var("1")),
+                new Expression.Value(Utils.var("0"))));
+    List<org.eclipse.biscuit.token.builder.Scope> scopes = new ArrayList<>();
+    var nbfRule = new Rule(head, body, expressions, scopes);
+    Block authorityBuilder = new Block();
+    assertTrue(authorityBuilder.addRule(nbfRule, true).isErr());
   }
 }
