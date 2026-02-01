@@ -253,11 +253,8 @@ public final class Biscuit extends UnverifiedBiscuit {
    */
   static Biscuit fromSerializedBiscuit(SerializedBiscuit ser, SymbolTable symbolTable)
       throws Error {
-    Pair<Block, ArrayList<Block>> t = ser.extractBlocks(symbolTable);
-    Block authority = t._1;
-    ArrayList<Block> blocks = t._2;
-
-    return new Biscuit(authority, blocks, symbolTable, ser);
+    Pair<Block, List<Block>> t = ser.extractBlocks(symbolTable);
+    return new Biscuit(t._1, t._2, symbolTable, ser);
   }
 
   /**
