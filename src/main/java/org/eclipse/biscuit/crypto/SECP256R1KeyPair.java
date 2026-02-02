@@ -31,12 +31,16 @@ final class SECP256R1KeyPair extends KeyPair {
 
   private final BCECPrivateKey privateKey;
   private final BCECPublicKey publicKey;
+  private final boolean deterministicNonce;
 
   static final String ALGORITHM = "ECDSA";
   static final String CURVE = "secp256r1";
   static final ECNamedCurveParameterSpec SECP256R1 = ECNamedCurveTable.getParameterSpec(CURVE);
 
-  SECP256R1KeyPair(byte[] bytes) throws Error.FormatError.InvalidKeySize {
+  SECP256R1KeyPair(byte[] bytes, boolean deterministicNonce)
+      throws Error.FormatError.InvalidKeySize {
+    this.deterministicNonce = deterministicNonce;
+
     if (bytes.length != BUFFER_SIZE) {
       throw new Error.FormatError.InvalidKeySize(bytes.length);
     }
@@ -52,7 +56,9 @@ final class SECP256R1KeyPair extends KeyPair {
     this.publicKey = publicKey;
   }
 
-  SECP256R1KeyPair(SecureRandom rng) {
+  SECP256R1KeyPair(SecureRandom rng, boolean deterministicNonce) {
+    this.deterministicNonce = deterministicNonce;
+
     byte[] bytes = new byte[BUFFER_SIZE];
     rng.nextBytes(bytes);
 
@@ -78,10 +84,6 @@ final class SECP256R1KeyPair extends KeyPair {
   /// a weak RNG.
   @Override
   public byte[] sign(byte[] data) {
-    return sign(data, true);
-  }
-
-  public byte[] sign(byte[] data, boolean deterministicNonce) {
     var digest = new SHA256Digest();
     digest.update(data, 0, data.length);
     var hash = new byte[digest.getDigestSize()];
