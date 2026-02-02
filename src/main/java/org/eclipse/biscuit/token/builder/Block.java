@@ -142,7 +142,7 @@ public final class Block {
     for (Scope s : this.scopes) {
       scopes.add(s.convert(symbolTable));
     }
-    int version = SchemaVersion.version(facts, rules, checks, scopes, externalKey);
+    var version = new SchemaVersion(facts, rules, checks, scopes, externalKey).version();
 
     SymbolTable blockSymbols = new SymbolTable();
 

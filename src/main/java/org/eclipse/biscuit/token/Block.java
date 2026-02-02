@@ -35,7 +35,7 @@ public final class Block {
   private final List<Scope> scopes;
   private final List<PublicKey> publicKeys;
   private Optional<PublicKey> externalKey;
-  private long version;
+  private int version;
 
   /**
    * creates a new block
@@ -222,7 +222,7 @@ public final class Block {
       b.addPublicKeys(pk.serialize());
     }
 
-    b.setVersion(SchemaVersion.version(facts, rules, checks, scopes, externalKey));
+    b.setVersion(version);
     return b.build();
   }
 
@@ -299,7 +299,8 @@ public final class Block {
       }
     }
 
-    var res = SchemaVersion.checkCompatibility(version, facts, rules, checks, scopes, externalKey);
+    var schemaVersion = new SchemaVersion(facts, rules, checks, scopes, externalKey);
+    var res = schemaVersion.checkCompatibility(version);
     if (res.isErr()) {
       Error.FormatError e = res.getErr();
       return Result.err(e);

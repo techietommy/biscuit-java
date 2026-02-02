@@ -15,111 +15,98 @@ import org.eclipse.biscuit.error.Result;
 import org.eclipse.biscuit.token.format.SerializedBiscuit;
 
 public final class SchemaVersion {
-  public static int version(
+  private final boolean containsScopes;
+  private final boolean containsV31;
+  private final boolean containsCheckAll;
+  private final boolean containsV33;
+  private final boolean containsExternalKey;
+
+  public SchemaVersion(
       List<Fact> facts,
       List<Rule> rules,
       List<Check> checks,
       List<Scope> scopes,
       Optional<PublicKey> externalKey) {
-    if (containsV6(facts, rules, checks)) {
+    containsScopes =
+        !scopes.isEmpty()
+            || rules.stream().anyMatch(r -> !r.scopes().isEmpty())
+            || checks.stream()
+                .anyMatch(c -> c.queries().stream().anyMatch(q -> !q.scopes().isEmpty()));
+
+    containsCheckAll = checks.stream().anyMatch(c -> c.kind() == Check.Kind.ALL);
+
+    containsV31 =
+        rules.stream().anyMatch(r -> containsV31Op(r.expressions()))
+            || checks.stream()
+                .anyMatch(c -> c.queries().stream().anyMatch(q -> containsV31Op(q.expressions())));
+
+    containsV33 =
+        checks.stream().anyMatch(c -> c.kind() == Check.Kind.REJECT)
+            || rules.stream()
+                .anyMatch(
+                    r ->
+                        containsV33Predicate(r.head())
+                            || r.body().stream().anyMatch(SchemaVersion::containsV33Predicate)
+                            || containsV33Op(r.expressions()))
+            || checks.stream()
+                .anyMatch(
+                    c ->
+                        c.queries().stream()
+                            .anyMatch(
+                                q ->
+                                    q.body().stream().anyMatch(SchemaVersion::containsV33Predicate)
+                                        || containsV33Op(q.expressions())))
+            || facts.stream().anyMatch(f -> containsV33Predicate(f.predicate()));
+
+    containsExternalKey = externalKey.isPresent();
+  }
+
+  public int version() {
+    if (containsV33) {
       return SerializedBiscuit.DATALOG_3_3;
     }
-    if (containsV5(externalKey)) {
+    if (containsExternalKey) {
       return SerializedBiscuit.DATALOG_3_2;
     }
-    if (containsV4(rules, checks, scopes)) {
+    if (containsScopes || containsV31 || containsCheckAll) {
       return SerializedBiscuit.DATALOG_3_1;
     }
     return SerializedBiscuit.MIN_SCHEMA_VERSION;
   }
 
-  public static Result<Void, Error.FormatError> checkCompatibility(
-      int version,
-      List<Fact> facts,
-      List<Rule> rules,
-      List<Check> checks,
-      List<Scope> scopes,
-      Optional<PublicKey> externalKey) {
-    if (version < SerializedBiscuit.DATALOG_3_1 && containsV4(rules, checks, scopes)) {
-      return Result.err(
-          new Error.FormatError.DeserializationError(
-              "v" + version + " blocks must not have v4 features"));
+  public Result<Void, Error.FormatError> checkCompatibility(int version) {
+    if (version < SerializedBiscuit.DATALOG_3_1) {
+      if (containsScopes) {
+        return Result.err(
+            new Error.FormatError.DeserializationError(
+                "scopes are only supported in datalog v3.1+"));
+      }
+      if (containsV31) {
+        return Result.err(
+            new Error.FormatError.DeserializationError(
+                "bitwise operators and != are only supported in datalog v3.1+"));
+      }
+      if (containsCheckAll) {
+        return Result.err(
+            new Error.FormatError.DeserializationError(
+                "check all is only supported in datalog v3.1+"));
+      }
     }
-    if (version < SerializedBiscuit.DATALOG_3_2 && containsV5(externalKey)) {
+    if (version < SerializedBiscuit.DATALOG_3_2 && containsExternalKey) {
       return Result.err(
           new Error.FormatError.DeserializationError(
-              "v" + version + " blocks must not have v5 features"));
+              "third-party blocks are only supported in datalog v3.2+"));
     }
-    if (version < SerializedBiscuit.DATALOG_3_3 && containsV6(facts, rules, checks)) {
+
+    if (version < SerializedBiscuit.DATALOG_3_3 && containsV33) {
       return Result.err(
           new Error.FormatError.DeserializationError(
-              "v" + version + " blocks must not have v6 features"));
+              "maps, arrays, null, closures are only supported in datalog v3.3+"));
     }
     return Result.ok(null);
   }
 
-  private static boolean containsV4(List<Rule> rules, List<Check> checks, List<Scope> scopes) {
-    if (!scopes.isEmpty()) {
-      return true;
-    }
-    for (Rule rule : rules) {
-      if (!rule.scopes().isEmpty()) {
-        return true;
-      }
-      if (containsV4Ops(rule.expressions())) {
-        return true;
-      }
-    }
-
-    for (Check check : checks) {
-      if (check.kind() == Check.Kind.ALL) {
-        return true;
-      }
-      for (Rule query : check.queries()) {
-        if (!query.scopes().isEmpty()) {
-          return true;
-        }
-        if (containsV4Ops(query.expressions())) {
-          return true;
-        }
-      }
-    }
-
-    return false;
-  }
-
-  private static boolean containsV5(Optional<PublicKey> externalKey) {
-    return externalKey.isPresent();
-  }
-
-  private static boolean containsV6(List<Fact> facts, List<Rule> rules, List<Check> checks) {
-    for (Fact fact : facts) {
-      if (containsV6Terms(fact.predicate().terms())) {
-        return true;
-      }
-    }
-
-    for (Rule rule : rules) {
-      if (containsV6Ops(rule.expressions())) {
-        return true;
-      }
-    }
-
-    for (Check check : checks) {
-      if (check.kind() == Check.Kind.REJECT) {
-        return true;
-      }
-      for (Rule query : check.queries()) {
-        if (containsV6Ops(query.expressions())) {
-          return true;
-        }
-      }
-    }
-
-    return false;
-  }
-
-  private static boolean containsV4Ops(List<Expression> expressions) {
+  private static boolean containsV31Op(List<Expression> expressions) {
     for (Expression e : expressions) {
       for (Op op : e.getOps()) {
         if (op instanceof Op.Binary) {
@@ -138,7 +125,7 @@ public final class SchemaVersion {
     return false;
   }
 
-  private static boolean containsV6Ops(List<Expression> expressions) {
+  private static boolean containsV33Op(List<Expression> expressions) {
     for (Expression e : expressions) {
       for (Op op : e.getOps()) {
         if (op instanceof Op.Unary) {
@@ -176,15 +163,19 @@ public final class SchemaVersion {
     return false;
   }
 
-  private static boolean containsV6Terms(List<Term> terms) {
-    for (Term term : terms) {
-      if (term instanceof Term.Null) {
-        return true;
-      } else if (term instanceof Term.Array) {
-        return true;
-      } else if (term instanceof Term.Map) {
-        return true;
-      }
+  private static boolean containsV33Predicate(Predicate predicate) {
+    return predicate.terms().stream().anyMatch(SchemaVersion::containsV33Term);
+  }
+
+  private static boolean containsV33Term(Term term) {
+    if (term instanceof Term.Null) {
+      return true;
+    }
+    if (term instanceof Term.Array) {
+      return true;
+    }
+    if (term instanceof Term.Map) {
+      return true;
     }
     return false;
   }

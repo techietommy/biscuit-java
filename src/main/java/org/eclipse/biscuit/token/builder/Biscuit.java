@@ -148,7 +148,7 @@ public final class Biscuit {
     for (Scope s : this.scopes) {
       scopes.add(s.convert(symbolTable));
     }
-    int version = SchemaVersion.version(facts, rules, checks, scopes, Optional.empty());
+    var version = new SchemaVersion(facts, rules, checks, scopes, Optional.empty()).version();
 
     SymbolTable blockSymbols = new SymbolTable();
 
