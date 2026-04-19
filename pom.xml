@@ -38,7 +38,7 @@
         <os-maven-plugin.version>1.7.1</os-maven-plugin.version>
         <re2j.version>1.6</re2j.version>
         <jackson.version>2.17.3</jackson.version>
-        <bcprov.version>1.80</bcprov.version>
+        <bcprov.version>1.84</bcprov.version>
 
         <!-- test dependencies -->
         <junit.version>5.8.2</junit.version>
